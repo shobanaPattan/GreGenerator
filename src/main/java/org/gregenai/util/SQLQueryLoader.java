@@ -1,0 +1,24 @@
+package org.gregenai.util;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
+public class SQLQueryLoader {
+    private static Properties queries = new Properties();
+
+    static {
+        try (InputStream input = SQLQueryLoader.class.getClassLoader().getResourceAsStream("sql_queries.properties")) {
+            if (input == null) {
+                throw new RuntimeException("SQL queries not found in resources!");
+            }
+            queries.load(input);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load SQL queries", e);
+        }
+    }
+
+    public static String get(String key) {
+        return queries.getProperty(key);
+    }
+}
