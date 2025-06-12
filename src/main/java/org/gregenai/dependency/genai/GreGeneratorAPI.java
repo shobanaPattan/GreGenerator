@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 public class GreGeneratorAPI {
 
     private static final Logger logger = LoggerFactory.getLogger(GreGeneratorAPI.class);
-    private static final String openAi_API_Key = "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";
+    private static final String openAi_API_Key = "";
     private static final String openAi_Url = "https://api.openai.com/v1/chat/completions";
 
     public static void main(String[] args) {

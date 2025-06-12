@@ -19,7 +19,7 @@ public class GreGenerator {
 
     public static String chatGPT(String message) {
         final Logger logger = LoggerFactory.getLogger(GreGeneratorAPI.class);
-        final String openAi_API_Key = "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";
+        final String openAi_API_Key = "";
         final String openAi_Url = "https://api.openai.com/v1/chat/completions";
         final String model = "gpt-3.5-turbo";
 
