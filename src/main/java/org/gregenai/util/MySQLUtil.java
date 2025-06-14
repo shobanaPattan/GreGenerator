@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-public class SQLQueryLoader {
+public class MySQLUtil {
     private static Properties queries = new Properties();
 
     static {
-        try (InputStream input = SQLQueryLoader.class.getClassLoader().getResourceAsStream("sql_queries.properties")) {
+        try (InputStream input = MySQLUtil.class.getClassLoader().getResourceAsStream("sql_queries.properties")) {
             if (input == null) {
                 throw new RuntimeException("SQL queries not found in resources!");
             }

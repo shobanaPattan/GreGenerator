@@ -4,7 +4,8 @@ public class GreRequest {
     // TODO: Create a builder for this model POJO based on annotation framework like lombok
     private String name;
     private String definition;
-    private String queryType;
+
+    private String databaseType;
 
     //Getter and Setters
     public String getName() {
@@ -23,11 +24,11 @@ public class GreRequest {
         this.definition = definition;
     }
 
-    public String getQueryType() {
-        return queryType;
+    public String getDatabaseType() {
+        return databaseType;
     }
 
-    public void setQueryType() {
-        this.queryType = queryType;
+    public void setDatabaseType() {
+        this.databaseType = databaseType;
     }
 }
