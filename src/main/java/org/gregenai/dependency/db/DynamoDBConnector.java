@@ -9,6 +9,7 @@ import software.amazon.awssdk.auth.credentials.EnvironmentVariableCredentialsPro
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.endpoints.internal.Value;
 import software.amazon.awssdk.services.dynamodb.model.*;
 
 import java.util.ArrayList;
@@ -89,7 +90,7 @@ public class DynamoDBConnector extends AbstractDataBaseConnector {
         return JSONUtil.generateJsonStringFromObject(resultList);
     }
 
-    public static int insertGreWordIntoDynamoDb(GreRequest greRequest) {
+    public String createRecords(GreRequest greRequest) {
         try {
             Map<String, AttributeValue> resultSet = new HashMap<>();
             resultSet.put("Training_English_Word", AttributeValue.builder().s(greRequest.getName()).build());
@@ -99,36 +100,43 @@ public class DynamoDBConnector extends AbstractDataBaseConnector {
 
             dynamoDbClient.putItem(request);
             System.out.println("Values inserted successfully into GRE_GENAI");
-            return 1;
+            return JSONUtil.generateJsonStringFromObject("1");
         } catch (DynamoDbException e) {
             System.err.println("DynamoDB insertion failed: " + e.getMessage());
-            return 0;
+            return JSONUtil.generateErrorJsonStringFromObject("0");
         } catch (Exception e) {
             System.err.println("Unexpected error: " + e.getMessage());
             e.printStackTrace();
-            return 0;
+            return JSONUtil.generateErrorJsonStringFromObject("0");
         }
     }
 
-    public static int deleteGreWordDetailsFromDynamoDb(GreRequest greRequest) {
+    public String deleteRecords(GreRequest greRequest) {
         try {
             Map<String, AttributeValue> item = new HashMap<>();
             item.put("Training_English_Word", AttributeValue.builder().s(greRequest.getName()).build());
 
-            DeleteItemRequest deleteItemRequest = DeleteItemRequest.builder().tableName("GRE_GENAI").key(item).build();
-            dynamoDbClient.deleteItem(deleteItemRequest);
-            return 1;
+            DeleteItemRequest deleteItemRequest = DeleteItemRequest.builder().tableName("GRE_GENAI").key(item).returnValues(ReturnValue.ALL_OLD).build();
+            DeleteItemResponse deleteItemResponse = dynamoDbClient.deleteItem(deleteItemRequest);
+
+            //Check if the name exists and deleted
+            Map<String, AttributeValue> deletedItem = deleteItemResponse.attributes();
+            if (deletedItem == null || deletedItem.isEmpty()) {
+                return JSONUtil.generateErrorJsonStringFromObject("Gre word not found : " + greRequest.getName());
+            }
+
+            return JSONUtil.generateJsonStringFromObject("Successfully deleted Gre word : " + greRequest.getName());
         } catch (DynamoDbException e) {
             System.err.println("DynamoDB deletion failed: " + e.getMessage());
-            return 0;
+            return JSONUtil.generateErrorJsonStringFromObject("DynamoDB error during delete");
         } catch (Exception e) {
             System.err.println("Failed to delete items from Dynamo DB table " + e.getMessage());
-            return 0;
+            return JSONUtil.generateErrorJsonStringFromObject("Unexpected error during delete");
         }
     }
 
     //Method to get GRE word details by name
-    public static Map<String, Object> getGreWordDetailsFromDynamoDb(GreRequest greRequest) {
+    public String readRecordsByName(GreRequest greRequest) {
         try {
             Map<String, AttributeValue> itemKey = new HashMap<>();
             itemKey.put("Training_English_Word", AttributeValue.builder().s(greRequest.getName()).build());
@@ -143,7 +151,7 @@ public class DynamoDBConnector extends AbstractDataBaseConnector {
                 Map<String, Object> readableResult = convertItemToMap(item);
 
                 readableResult.forEach((Key, Value) -> System.out.println(Key + " : " + Value));
-                return readableResult;
+                return JSONUtil.generateJsonStringFromObject(readableResult);
             } else {
                 System.out.println("Item not found for key: " + getItemRequest.tableName());
                 return null;
@@ -178,6 +186,11 @@ public class DynamoDBConnector extends AbstractDataBaseConnector {
         }
     }
 
+    @Override
+    public void updateRecords(GreRequest greRequest) {
+
+
+    }
 
     // Convert AttributeValue map to readable Map<String, Object>
     public static Map<String, Object> convertItemToMap(Map<String, AttributeValue> item) {
@@ -205,18 +218,7 @@ public class DynamoDBConnector extends AbstractDataBaseConnector {
         return null;
     }
 
-    @Override
-    public int createRecords(GreRequest greRequest) {
-        return 0;
-    }
 
-    @Override
-    public void updateRecords(GreRequest greRequest) {
 
-    }
 
-    @Override
-    public int deleteRecords(GreRequest greRequest) {
-        return 0;
-    }
 }

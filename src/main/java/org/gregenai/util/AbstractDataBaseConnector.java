@@ -6,9 +6,11 @@ public abstract class AbstractDataBaseConnector {
 
     public abstract String readRecords();
 
-    public abstract int createRecords(GreRequest greRequest);
+    public abstract String readRecordsByName(GreRequest greRequest);
+
+    public abstract String createRecords(GreRequest greRequest);
 
     public abstract void updateRecords(GreRequest greRequest);
 
-    public abstract int deleteRecords(GreRequest greRequest);
+    public abstract String deleteRecords(GreRequest greRequest);
 }

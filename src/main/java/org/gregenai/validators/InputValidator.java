@@ -9,6 +9,15 @@ import spark.utils.StringUtils;
 public class InputValidator {
     static Gson gson = new Gson();
 
+
+    public static GreRequest getGreRequestObject(Request request) {
+        GreRequest.GreBuilder greBuilder = new GreRequest.GreBuilder();
+        greBuilder.setGreRequestObject(validateAndReturnRequestBody(request));
+
+        return greBuilder.build();
+    }
+
+
     public static GreRequest validateAndReturnRequestBody(Request requestBody) {
         GreRequest greRequest;
         try {
@@ -18,7 +27,7 @@ public class InputValidator {
                 throw new IllegalArgumentException("Request body is empty.");
             }
 //            if (StringUtils.isNotEmpty(greRequest.getName()) && StringUtils.isNotEmpty(greRequest.getDefinition())) {
-                return greRequest;
+            return greRequest;
 //            }
         } catch (JsonSyntaxException e) {
             throw new IllegalArgumentException("Invalid JSON format.", e);

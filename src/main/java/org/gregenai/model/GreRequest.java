@@ -6,6 +6,8 @@ public class GreRequest {
     private String definition;
     private String databaseType;
 
+    private GreRequest greRequest;
+
     public GreRequest(GreBuilder greBuilder) {
         this.name = greBuilder.name;
         this.definition = greBuilder.definition;
@@ -16,16 +18,20 @@ public class GreRequest {
         return name;
     }
 
-    public void setName() {
-        this.name = name;
-    }
-
     public String getDefinition() {
         return definition;
     }
 
+    public GreRequest getGreRequest() {
+        return greRequest;
+    }
+
     public void setDefinition() {
         this.definition = definition;
+    }
+
+    public void setName() {
+        this.name = name;
     }
 
     public String getDatabaseType() {
@@ -39,6 +45,7 @@ public class GreRequest {
     public static class GreBuilder {
         private String name;
         private String definition;
+        private GreRequest greRequest;
 
         public GreBuilder setName(String name) {
             this.name = name;
@@ -47,6 +54,11 @@ public class GreRequest {
 
         public GreBuilder setDefinition(String definition) {
             this.definition = definition;
+            return this;
+        }
+
+        public GreBuilder setGreRequestObject(GreRequest greRequest) {
+            this.greRequest = greRequest;
             return this;
         }
 

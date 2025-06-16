@@ -1,5 +1,6 @@
 package org.gregenai.dependency.db;
 
+import org.apache.hadoop.yarn.webapp.hamlet2.Hamlet;
 import org.gregenai.model.GreRequest;
 import org.gregenai.util.AbstractDataBaseConnector;
 import org.gregenai.util.JSONUtil;
@@ -92,7 +93,7 @@ public class MySQLDBConnector extends AbstractDataBaseConnector {
 //    }
 
     @Override
-    public int createRecords(GreRequest greRequest) {
+    public String createRecords(GreRequest greRequest) {
         try {
             //SQL Query
             String sqlQuery = MySQLUtil.getSQLQuery("insert.definition");
@@ -103,7 +104,7 @@ public class MySQLDBConnector extends AbstractDataBaseConnector {
             int rowsAffected = preparedStatement.executeUpdate();
             System.out.println(rowsAffected + " rows updated");
 
-            return rowsAffected;
+            return JSONUtil.generateJsonStringFromObject(rowsAffected);
         } catch (SQLException e) {
             System.err.println("Failed to execute SQL query");
             throw new RuntimeException(e);
@@ -145,8 +146,9 @@ public class MySQLDBConnector extends AbstractDataBaseConnector {
 
     }
 
+
     //Method to display the definition of a given word
-    public static Map<String, Object> getGreWordDetailsFromMySQL(GreRequest greRequest) {
+    public String readRecordsByName(GreRequest greRequest) {
         Map<String, Object> resultData = new HashMap<>();
         try {
             //SQL Query to select by name
@@ -176,25 +178,24 @@ public class MySQLDBConnector extends AbstractDataBaseConnector {
             System.err.println("Failed to execute SQL with WHERE clause query");
             throw new RuntimeException(e);
         }
-        return resultData;
+        return JSONUtil.generateJsonStringFromObject(resultData);
     }
 
     @Override
-    public int deleteRecords(GreRequest greRequest) {
+    public String deleteRecords(GreRequest greRequest) {
         try {
-            //SQL Query
+            //Delete the Gre word
             String sqlQuery = MySQLUtil.getSQLQuery("delete.by.name");
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             preparedStatement.setString(1, greRequest.getName());
+
             System.out.println("Prepared to execute the delete SQL query");
             int rowsAffected = preparedStatement.executeUpdate();
-
             if (rowsAffected == 0) {
-                System.out.println("Failed to delete the given word");
+                return JSONUtil.generateErrorJsonStringFromObject("Gre word not found : " + greRequest.getName());
             } else {
-                System.out.println("Successfully deleted the word");
+                return JSONUtil.generateJsonStringFromObject("Successfully deleted the Gre word : " + greRequest.getName());
             }
-            return rowsAffected;
         } catch (SQLException e) {
             System.err.println("Failed to execute the delete SQL query");
             throw new RuntimeException(e);
@@ -231,8 +232,8 @@ public class MySQLDBConnector extends AbstractDataBaseConnector {
         return resultData;
     }
 
-    @Override
-    public void updateRecords(GreRequest greRequest) {
+
+    public void updateViewRecords(GreRequest greRequest) {
         //SQL Query to update the view count
         String sqlQuery = (greRequest.getName() == null) ? MySQLUtil.getSQLQuery("update.views") : MySQLUtil.getSQLQuery("update.views.by.name");
         try (PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery)) {
@@ -248,7 +249,11 @@ public class MySQLDBConnector extends AbstractDataBaseConnector {
         }
     }
 
+    @Override
+    public void updateRecords(GreRequest greRequest) {
 
 
+
+    }
 
 }
