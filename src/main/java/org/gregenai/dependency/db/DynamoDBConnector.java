@@ -1,6 +1,10 @@
 package org.gregenai.dependency.db;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.gregenai.model.GreRequest;
+import org.gregenai.util.AbstractDataBaseConnector;
+import org.gregenai.util.JSONUtil;
 import software.amazon.awssdk.auth.credentials.EnvironmentVariableCredentialsProvider;
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.regions.Region;
@@ -12,26 +16,56 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DynamoDBConnector {
-    public static DynamoDbClient getClient() {
+public class DynamoDBConnector extends AbstractDataBaseConnector {
+
+    static DynamoDbClient dynamoDbClient;
+    static Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+    static {
         try {
+            //Creating connection
             System.out.println(" ********* Connecting to AWS DynamoDB ********* ");
-            return DynamoDbClient.builder().
+            dynamoDbClient = DynamoDbClient.builder().
                     region(Region.US_EAST_1).
                     credentialsProvider(EnvironmentVariableCredentialsProvider.create()).build();
 
+            //Validating connection
+            if (dynamoDbClient == null) {
+                System.err.println("Failed to create Dynamo DB connection, shutting down the application.");
+                spark.Spark.stop();
+            }
         } catch (DynamoDbException e) {
             System.err.println("Dynamo error : " + e.awsErrorDetails().errorMessage());
+            e.printStackTrace();
         } catch (SdkClientException e) {
             System.err.println("SDK client error : " + e.getMessage());
+            e.printStackTrace();
         } catch (Exception e) {
             System.err.println("Failed to connect to AWS DynamoDB: " + e.getMessage());
             e.printStackTrace();
         }
-        return null;
     }
 
-    public static List<Map<String, Object>> selectDynamoDbTable(DynamoDbClient dynamoDbClient) {
+
+//    public static DynamoDbClient getClient() {
+//        try {
+//            System.out.println(" ********* Connecting to AWS DynamoDB ********* ");
+//            return DynamoDbClient.builder().
+//                    region(Region.US_EAST_1).
+//                    credentialsProvider(EnvironmentVariableCredentialsProvider.create()).build();
+//
+//        } catch (DynamoDbException e) {
+//            System.err.println("Dynamo error : " + e.awsErrorDetails().errorMessage());
+//        } catch (SdkClientException e) {
+//            System.err.println("SDK client error : " + e.getMessage());
+//        } catch (Exception e) {
+//            System.err.println("Failed to connect to AWS DynamoDB: " + e.getMessage());
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
+
+    public static String selectDynamoDbTable() {
         List<Map<String, Object>> resultList = new ArrayList<>();
         try {
             //Create a ScanRequest
@@ -52,10 +86,10 @@ public class DynamoDBConnector {
         } catch (DynamoDbException e) {
             System.err.println("Failed to retrieve values from Dynamo DB " + e.getMessage());
         }
-        return resultList;
+        return JSONUtil.generateJsonStringFromObject(resultList);
     }
 
-    public static int insertGreWordIntoDynamoDb(DynamoDbClient dynamoDbClient, GreRequest greRequest) {
+    public static int insertGreWordIntoDynamoDb(GreRequest greRequest) {
         try {
             Map<String, AttributeValue> resultSet = new HashMap<>();
             resultSet.put("Training_English_Word", AttributeValue.builder().s(greRequest.getName()).build());
@@ -76,7 +110,7 @@ public class DynamoDBConnector {
         }
     }
 
-    public static int deleteGreWordDetailsFromDynamoDb(DynamoDbClient dynamoDbClient, GreRequest greRequest) {
+    public static int deleteGreWordDetailsFromDynamoDb(GreRequest greRequest) {
         try {
             Map<String, AttributeValue> item = new HashMap<>();
             item.put("Training_English_Word", AttributeValue.builder().s(greRequest.getName()).build());
@@ -94,7 +128,7 @@ public class DynamoDBConnector {
     }
 
     //Method to get GRE word details by name
-    public static Map<String, Object> getGreWordDetailsFromDynamoDb(DynamoDbClient dynamoDbClient, GreRequest greRequest) {
+    public static Map<String, Object> getGreWordDetailsFromDynamoDb(GreRequest greRequest) {
         try {
             Map<String, AttributeValue> itemKey = new HashMap<>();
             itemKey.put("Training_English_Word", AttributeValue.builder().s(greRequest.getName()).build());
@@ -124,7 +158,7 @@ public class DynamoDBConnector {
     }
 
     //Method to update views count by name
-    public static void updateViewsCountDynamoDb(DynamoDbClient dynamoDbClient, GreRequest greRequest) {
+    public static void updateViewsCountDynamoDb(GreRequest greRequest) {
         try {
             Map<String, AttributeValue> itemKey = new HashMap<>();
             itemKey.put("Training_English_Word", AttributeValue.builder().s(greRequest.getName()).build());
@@ -166,4 +200,23 @@ public class DynamoDBConnector {
         return readableMap;
     }
 
+    @Override
+    public String readRecords() {
+        return null;
+    }
+
+    @Override
+    public int createRecords(GreRequest greRequest) {
+        return 0;
+    }
+
+    @Override
+    public void updateRecords(GreRequest greRequest) {
+
+    }
+
+    @Override
+    public int deleteRecords(GreRequest greRequest) {
+        return 0;
+    }
 }

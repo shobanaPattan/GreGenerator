@@ -18,7 +18,8 @@ public class MySQLUtil {
         }
     }
 
-    public static String get(String key) {
+    // TODO: give better name other than "get". If anyone else wants to use this, they won't know what this gets
+    public static String getSQLQuery(String key) {
         return queries.getProperty(key);
     }
 }

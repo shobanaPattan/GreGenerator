@@ -1,6 +1,8 @@
 package org.gregenai.dependency.db;
 
 import org.gregenai.model.GreRequest;
+import org.gregenai.util.AbstractDataBaseConnector;
+import org.gregenai.util.JSONUtil;
 import org.gregenai.util.MySQLUtil;
 
 import java.sql.*;
@@ -10,10 +12,13 @@ import java.util.List;
 import java.util.Map;
 
 import static org.gregenai.constant.DBConstants.*;
+//import static org.gregenai.validators.InputValidator.gson;
 
-public class MySQLDataBaseConnectionAPI {
+public class MySQLDBConnector extends AbstractDataBaseConnector {
 
-    public static Connection createConnection() throws ClassNotFoundException {
+    private static Connection connection;
+
+    static {
         try {
             //Load the JDBC
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -21,17 +26,76 @@ public class MySQLDataBaseConnectionAPI {
 
             //Creating connection
             System.out.println(" ********* Connecting to MySQL ********* ");
-            return DriverManager.getConnection(MYSQL_URL, USERNAME, PASSWORD);
+            connection = DriverManager.getConnection(MYSQL_URL, USERNAME, PASSWORD);
+
+            //Validating connection
+            if (connection == null) {
+                System.err.println("Failed to create MySQL DataBase connection, shutting down the application.");
+                spark.Spark.stop();
+            }
         } catch (SQLException e) {
             System.err.println("Loading the connection object failed.");
-            return null;
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.err.println("Failed to create connection to MySQL" + e.getMessage());
+            e.printStackTrace();
         }
-    }
 
-    public static int insertGreWordIntoSQL(Connection connection, GreRequest greRequest) {
+    }
+//
+//    public static Connection createAndValidateConnection() {
+//        try {
+//            //Load the JDBC
+//            Class.forName("com.mysql.cj.jdbc.Driver");
+//            System.out.println(" ********* Driver Loaded !  *********");
+//
+//            //Creating connection
+//            System.out.println(" ********* Connecting to MySQL ********* ");
+//            Connection connection = DriverManager.getConnection(MYSQL_URL, USERNAME, PASSWORD);
+//
+//            //Validating connection
+//            if (connection == null) {
+//                System.err.println("Failed to create DataBase connection, shutting down the application.");
+//                spark.Spark.stop();
+//                return null;
+//            } else {
+//                System.out.println(" ********* Connection made to MySQL ********* ");
+//                return connection;
+//            }
+//        } catch (SQLException e) {
+//            System.err.println("Loading the connection object failed.");
+//            e.printStackTrace();
+//            return null;
+//        } catch (Exception e) {
+//            System.err.println("Failed to create connection to MySQL" + e.getMessage());
+//            e.printStackTrace();
+//            return null;
+//        }
+//    }
+
+//    public Connection checkConnectionNull() {
+//        try {
+//            Connection conn = createConnection();
+//            System.out.println("Connection created to MySQL");
+//
+//            if (conn == null) {
+//                System.err.println("Failed to create DataBase connection, shutting down the application.");
+//                spark.Spark.stop();
+//                return null;
+//            } else {
+//                return conn;
+//            }
+//        } catch (ClassNotFoundException e) {
+//            System.err.println("Failed to create connection to MySQL" + e.getMessage());
+//            return null;
+//        }
+//    }
+
+    @Override
+    public int createRecords(GreRequest greRequest) {
         try {
             //SQL Query
-            String sqlQuery = MySQLUtil.get("insert.definition");
+            String sqlQuery = MySQLUtil.getSQLQuery("insert.definition");
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             preparedStatement.setString(1, greRequest.getName());
             preparedStatement.setString(2, greRequest.getDefinition());
@@ -47,14 +111,17 @@ public class MySQLDataBaseConnectionAPI {
     }
 
     //Method to display the table
-    public static List<Map<String, String>> selectSQLTable(Connection connection) {
+    @Override
+    public String readRecords() {
         List<Map<String, String>> rows = new ArrayList<>();
         try {
-            updateViewsCountSqlQuery(connection, null);
+//            updateViewsCountSqlQuery(connection,);
 
             //SQl Query
             Statement statement = connection.createStatement();
-            ResultSet result = statement.executeQuery(MySQLUtil.get("select.all"));
+            // TODO: What if your code does not find select.all in properties file?
+            // Hint: FileNotfoundException / ResourceNotFoundException
+            ResultSet result = statement.executeQuery(MySQLUtil.getSQLQuery("select.all"));
             System.out.println("Statement : " + statement);
 
             ResultSetMetaData resultMetaData = result.getMetaData();
@@ -74,19 +141,20 @@ public class MySQLDataBaseConnectionAPI {
         } catch (SQLException e) {
             System.err.println("Failed to display the SQL table");
         }
-        return rows;
+        return JSONUtil.generateJsonStringFromObject(rows);
+
     }
 
     //Method to display the definition of a given word
-    public static Map<String, Object> getGreWordDetailsFromMySQL(Connection connection, GreRequest greRequest) {
+    public static Map<String, Object> getGreWordDetailsFromMySQL(GreRequest greRequest) {
         Map<String, Object> resultData = new HashMap<>();
         try {
             //SQL Query to select by name
-            String sqlQuery = MySQLUtil.get("select.by.name");
+            String sqlQuery = MySQLUtil.getSQLQuery("select.by.name");
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             preparedStatement.setString(1, greRequest.getName());
 
-            updateViewsCountSqlQuery(connection, greRequest);
+//            updateRecords(greRequest);
 
             System.out.println("Prepared to execute the select by name SQL query");
             ResultSet result = preparedStatement.executeQuery();
@@ -111,10 +179,11 @@ public class MySQLDataBaseConnectionAPI {
         return resultData;
     }
 
-    public static int deleteGreWordDetailsFromSQL(Connection connection, GreRequest greRequest) {
+    @Override
+    public int deleteRecords(GreRequest greRequest) {
         try {
             //SQL Query
-            String sqlQuery = MySQLUtil.get("delete.by.name");
+            String sqlQuery = MySQLUtil.getSQLQuery("delete.by.name");
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             preparedStatement.setString(1, greRequest.getName());
             System.out.println("Prepared to execute the delete SQL query");
@@ -132,11 +201,11 @@ public class MySQLDataBaseConnectionAPI {
         }
     }
 
-    public static Map<String, Object> getViewsCountSql(Connection connection, GreRequest greRequest) {
+    public static Map<String, Object> getViewsCountSql(GreRequest greRequest) {
         Map<String, Object> resultData = new HashMap<>();
         try {
             //SQL Query
-            String salQuery = MySQLUtil.get("select.views.by.name");
+            String salQuery = MySQLUtil.getSQLQuery("select.views.by.name");
             PreparedStatement preparedStatement = connection.prepareStatement(salQuery);
             preparedStatement.setString(1, greRequest.getName());
             System.out.println("Prepared to execute select views SQL query");
@@ -162,9 +231,10 @@ public class MySQLDataBaseConnectionAPI {
         return resultData;
     }
 
-    public static void updateViewsCountSqlQuery(Connection connection, GreRequest greRequest) {
+    @Override
+    public void updateRecords(GreRequest greRequest) {
         //SQL Query to update the view count
-        String sqlQuery = (greRequest.getName() == null) ? MySQLUtil.get("update.views") : MySQLUtil.get("update.views.by.name");
+        String sqlQuery = (greRequest.getName() == null) ? MySQLUtil.getSQLQuery("update.views") : MySQLUtil.getSQLQuery("update.views.by.name");
         try (PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery)) {
             if (greRequest.getName() != null) {
                 preparedStatement.setString(1, greRequest.getName());
@@ -177,4 +247,8 @@ public class MySQLDataBaseConnectionAPI {
             throw new RuntimeException(e);
         }
     }
+
+
+
+
 }
