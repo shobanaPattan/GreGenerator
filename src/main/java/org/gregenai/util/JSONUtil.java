@@ -17,9 +17,20 @@ public class JSONUtil {
             return gson.toJson(Map.of("status", "error", "message", "Failed to convert into Json."));
         }
     }
+
     public static String generateErrorJsonStringFromObject(Object resultObject) {
         try {
             return gson.toJson(Map.of("status", "error", "Result", resultObject));
+        } catch (Exception e) {
+            System.err.println("Failed to convert Object into Json");
+            e.printStackTrace();
+            return gson.toJson(Map.of("status", "error", "message", "Failed to convert into Json."));
+        }
+    }
+
+    public static String generateJsonStringFromRedisObject(Object resultObject) {
+        try {
+            return gson.toJson(Map.of("status", "success", "Result", resultObject, "source", "Redis"));
         } catch (Exception e) {
             System.err.println("Failed to convert Object into Json");
             e.printStackTrace();

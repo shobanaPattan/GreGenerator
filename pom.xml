@@ -162,6 +162,14 @@
             <version>2.25.27</version>
         </dependency>
 
+        <!-- Redis cache -->
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>5.1.0</version>
+        </dependency>
+
+
     </dependencies>
 
     <build>

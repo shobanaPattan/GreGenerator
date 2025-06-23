@@ -10,7 +10,9 @@ public abstract class AbstractDataBaseConnector {
 
     public abstract String createRecords(GreRequest greRequest);
 
-    public abstract void updateRecords(GreRequest greRequest);
+    public abstract String updateRecords(GreRequest greRequest);
 
     public abstract String deleteRecords(GreRequest greRequest);
+
+    public abstract String readViewsCount(GreRequest greRequest);
 }

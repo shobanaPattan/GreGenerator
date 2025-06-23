@@ -27,7 +27,7 @@ public class GREWordTrainerAPI {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         //Get API
-        get("/getAllGreWords", (req, res) -> {
+        get("/getRecords", (req, res) -> {
             try {
                 HTTPHeaderModel httpConfigModel = HTTPConfigGenerator.getConfigModelFromHTTP(req);
                 //Set JSON response
@@ -109,65 +109,49 @@ public class GREWordTrainerAPI {
             }
         });
 
-//        put("/updateGreDefinitionByName", (req, res) -> {
-//            try {
-//                //Set JSON response
-//                HTTPHeaderModel httpConfigModel = HTTPConfigGenerator.getConfigModelFromHTTP(req);
-//                //Set JSON response
-//                res.type(httpConfigModel.getResType());
-//
-//                GreRequest greRequest = validateAndReturnRequestBody(req);
-//
-//
-////
-////                if (HttpParams.getDataBaseType(req).equals("mysql")) {
-////                    MySQLDBConnector.updateRecords(greRequest);
-////                } else if (HttpParams.getDataBaseType(req).equals("dynamodb")) {
-////                    DynamoDBConnector.updateViewsCountDynamoDb(greRequest);
-////                } else {
-////                    throw new IllegalArgumentException();
-////                }
-////                return gson.toJson(Map.of("status", "success", "message", "Successfully updated the view count of " + greRequest.getName()));
-//
-//            } catch (IllegalArgumentException exception) {
-//                return gson.toJson(Map.of("status", "error", "message", "Input is invalid."));
-//            } catch (Exception e) {
-//                System.err.println("Failed to update the view count into database");
-//                e.printStackTrace();
-//                res.status();
-//                return gson.toJson(Map.of("status", "error", "message", "Failed to update view count into database."));
-//            }
-//        });
+        put("/updateGreDefinitionByName", (req, res) -> {
+            try {
+                //Set JSON response
+                HTTPHeaderModel httpConfigModel = HTTPConfigGenerator.getConfigModelFromHTTP(req);
+                //Set JSON response
+                res.type(httpConfigModel.getResType());
 
-//        get("/getGreWordViewsCountByName", (req, res) -> {
-//            try {
-//                //Set JSON response
-//                HTTPHeaderModel httpConfigModel = HTTPConfigGenerator.getConfigModelFromHTTP(req);
-//                //Set JSON response
-//                res.type(httpConfigModel.getResType());
-//
-//                GreRequest greRequest = validateAndReturnRequestBody(req);
-//
-//                Map<String, Object> resultData;
+                GreRequest greRequest = validateAndReturnRequestBody(req);
 
-//                if (HttpParams.getDataBaseType(req).equals("mysql")) {
-//                    resultData = MySQLDBConnector.getViewsCountSql(greRequest);
-//                } else if (HttpParams.getDataBaseType(req).equals("dynamodb")) {
-//                   DynamoDBConnector.readRecordsByName(greRequest);
-//                } else {
-//                    throw new IllegalArgumentException();
-//                }
-//                return gson.toJson(Map.of("status", "success"));
+                AbstractDataBaseConnector db = DataBaseConnectorFactory.getDataBaseConnector(httpConfigModel.getDataBaseType());
+                return db.updateRecords(greRequest);
 
-//            } catch (IllegalArgumentException exception) {
-//                return gson.toJson(Map.of("status", "error", "message", "Input is invalid."));
-//            } catch (Exception e) {
-//                System.err.println("Failed to retrieve values from database");
-//                e.printStackTrace();
-//                res.status();
-//                return gson.toJson(Map.of("status", "error", "message", "Failed to retrieve values from database."));
-//            }
-//        });
+            } catch (IllegalArgumentException exception) {
+                return JSONUtil.generateErrorJsonStringFromObject("Input is invalid.");
+            } catch (Exception e) {
+                System.err.println("Failed to update the Gre word definition into database");
+                e.printStackTrace();
+                res.status();
+                return JSONUtil.generateErrorJsonStringFromObject("Failed to update Gre word definition into database.");
+            }
+        });
+
+        get("/getGreWordViewsCountByName", (req, res) -> {
+            try {
+                //Set JSON response
+                HTTPHeaderModel httpConfigModel = HTTPConfigGenerator.getConfigModelFromHTTP(req);
+                //Set JSON response
+                res.type(httpConfigModel.getResType());
+
+                GreRequest greRequest = validateAndReturnRequestBody(req);
+
+                AbstractDataBaseConnector db = DataBaseConnectorFactory.getDataBaseConnector(httpConfigModel.getDataBaseType());
+                return db.readViewsCount(greRequest);
+
+            } catch (IllegalArgumentException exception) {
+                return JSONUtil.generateErrorJsonStringFromObject("Input is invalid.");
+            } catch (Exception e) {
+                System.err.println("Failed to retrieve values from database");
+                e.printStackTrace();
+                res.status();
+                return JSONUtil.generateErrorJsonStringFromObject("Failed to retrieve name and views count from database.");
+            }
+        });
 
 
         awaitInitialization(); // make sure server is ready

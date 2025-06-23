@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.gregenai.constant.DBConstants.*;
-//import static org.gregenai.validators.InputValidator.gson;
+
 
 public class MySQLDBConnector extends AbstractDataBaseConnector {
 
@@ -43,54 +43,6 @@ public class MySQLDBConnector extends AbstractDataBaseConnector {
         }
 
     }
-//
-//    public static Connection createAndValidateConnection() {
-//        try {
-//            //Load the JDBC
-//            Class.forName("com.mysql.cj.jdbc.Driver");
-//            System.out.println(" ********* Driver Loaded !  *********");
-//
-//            //Creating connection
-//            System.out.println(" ********* Connecting to MySQL ********* ");
-//            Connection connection = DriverManager.getConnection(MYSQL_URL, USERNAME, PASSWORD);
-//
-//            //Validating connection
-//            if (connection == null) {
-//                System.err.println("Failed to create DataBase connection, shutting down the application.");
-//                spark.Spark.stop();
-//                return null;
-//            } else {
-//                System.out.println(" ********* Connection made to MySQL ********* ");
-//                return connection;
-//            }
-//        } catch (SQLException e) {
-//            System.err.println("Loading the connection object failed.");
-//            e.printStackTrace();
-//            return null;
-//        } catch (Exception e) {
-//            System.err.println("Failed to create connection to MySQL" + e.getMessage());
-//            e.printStackTrace();
-//            return null;
-//        }
-//    }
-
-//    public Connection checkConnectionNull() {
-//        try {
-//            Connection conn = createConnection();
-//            System.out.println("Connection created to MySQL");
-//
-//            if (conn == null) {
-//                System.err.println("Failed to create DataBase connection, shutting down the application.");
-//                spark.Spark.stop();
-//                return null;
-//            } else {
-//                return conn;
-//            }
-//        } catch (ClassNotFoundException e) {
-//            System.err.println("Failed to create connection to MySQL" + e.getMessage());
-//            return null;
-//        }
-//    }
 
     @Override
     public String createRecords(GreRequest greRequest) {
@@ -104,7 +56,7 @@ public class MySQLDBConnector extends AbstractDataBaseConnector {
             int rowsAffected = preparedStatement.executeUpdate();
             System.out.println(rowsAffected + " rows updated");
 
-            return JSONUtil.generateJsonStringFromObject(rowsAffected);
+            return JSONUtil.generateJsonStringFromObject(rowsAffected + "New Gre word and definition updated " + greRequest.getName());
         } catch (SQLException e) {
             System.err.println("Failed to execute SQL query");
             throw new RuntimeException(e);
@@ -116,12 +68,12 @@ public class MySQLDBConnector extends AbstractDataBaseConnector {
     public String readRecords() {
         List<Map<String, String>> rows = new ArrayList<>();
         try {
-//            updateViewsCountSqlQuery(connection,);
+//            updateViewRecords(GreRequest);
 
             //SQl Query
             Statement statement = connection.createStatement();
             // TODO: What if your code does not find select.all in properties file?
-            // Hint: FileNotfoundException / ResourceNotFoundException
+            // Hint: FileNot-foundException / ResourceNotFoundException
             ResultSet result = statement.executeQuery(MySQLUtil.getSQLQuery("select.all"));
             System.out.println("Statement : " + statement);
 
@@ -156,7 +108,7 @@ public class MySQLDBConnector extends AbstractDataBaseConnector {
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             preparedStatement.setString(1, greRequest.getName());
 
-//            updateRecords(greRequest);
+            updateViewRecords(greRequest);
 
             System.out.println("Prepared to execute the select by name SQL query");
             ResultSet result = preparedStatement.executeQuery();
@@ -202,7 +154,7 @@ public class MySQLDBConnector extends AbstractDataBaseConnector {
         }
     }
 
-    public static Map<String, Object> getViewsCountSql(GreRequest greRequest) {
+    public String readViewsCount(GreRequest greRequest) {
         Map<String, Object> resultData = new HashMap<>();
         try {
             //SQL Query
@@ -229,9 +181,26 @@ public class MySQLDBConnector extends AbstractDataBaseConnector {
             System.err.println("Failed to execute the select views SQL query");
             throw new RuntimeException(e);
         }
-        return resultData;
+        return JSONUtil.generateJsonStringFromObject(resultData);
     }
 
+    @Override
+    public String updateRecords(GreRequest greRequest) {
+        String sqlQuery = MySQLUtil.getSQLQuery("update.definition.by.name");
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery)) {
+            preparedStatement.setString(1, greRequest.getDefinition());
+            preparedStatement.setString(2, greRequest.getName());
+            int rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected == 0) {
+                return JSONUtil.generateErrorJsonStringFromObject("Failed to updated the Gre word definition : " + greRequest.getName());
+            } else {
+                return JSONUtil.generateJsonStringFromObject("Updated Gre word definition : " + greRequest.getName() + "  =  " + greRequest.getDefinition());
+            }
+        } catch (SQLException e) {
+            System.err.println("Failed to update the Gre word.");
+            throw new RuntimeException(e);
+        }
+    }
 
     public void updateViewRecords(GreRequest greRequest) {
         //SQL Query to update the view count
@@ -248,12 +217,4 @@ public class MySQLDBConnector extends AbstractDataBaseConnector {
             throw new RuntimeException(e);
         }
     }
-
-    @Override
-    public void updateRecords(GreRequest greRequest) {
-
-
-
-    }
-
 }
