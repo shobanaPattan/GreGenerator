@@ -1,18 +1,11 @@
 package org.gregenai.api;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import org.gregenai.dependency.db.DynamoDBConnector;
-import org.gregenai.dependency.db.MySQLDBConnector;
 import org.gregenai.factory.DataBaseConnectorFactory;
 import org.gregenai.model.GreRequest;
 import org.gregenai.model.HTTPHeaderModel;
 import org.gregenai.util.AbstractDataBaseConnector;
 import org.gregenai.util.HTTPConfigGenerator;
 import org.gregenai.util.JSONUtil;
-
-import java.sql.SQLException;
-import java.util.Map;
 
 import static org.gregenai.validators.InputValidator.validateAndReturnRequestBody;
 import static spark.Spark.*;
@@ -21,12 +14,12 @@ import static spark.Spark.*;
 public class GREWordTrainerAPI {
 //    static String responseType = "application/json";
 
-    public static void main(String[] args) throws SQLException, ClassNotFoundException {
+    public static void main(String[] args) {
         System.out.println("Loading API's");
 
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+//        Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-        //Get API
+        //Get all gre word records
         get("/getRecords", (req, res) -> {
             try {
                 HTTPHeaderModel httpConfigModel = HTTPConfigGenerator.getConfigModelFromHTTP(req);
@@ -42,7 +35,7 @@ public class GREWordTrainerAPI {
             }
         });
 
-        //Get Gre Word Details
+        //Get Gre Word Details by name
         get("/getGreWordDetailsByName", (req, res) -> {
             try {
                 HTTPHeaderModel httpConfigModel = HTTPConfigGenerator.getConfigModelFromHTTP(req);
@@ -63,7 +56,7 @@ public class GREWordTrainerAPI {
             }
         });
 
-        //POST word and definition API
+        //POST Gre word and definition
         post("/postGreWord", (req, res) -> {
             try {
                 //Set JSON response
@@ -86,7 +79,7 @@ public class GREWordTrainerAPI {
             }
         });
 
-        // DELETE API
+        // DELETE Gre word by name
         delete("/deleteItemByName", (req, res) -> {
             try {
                 //Set JSON response
@@ -109,6 +102,7 @@ public class GREWordTrainerAPI {
             }
         });
 
+        //Update existing Gre word definition
         put("/updateGreDefinitionByName", (req, res) -> {
             try {
                 //Set JSON response
@@ -131,6 +125,7 @@ public class GREWordTrainerAPI {
             }
         });
 
+        //Get Gre word views count by name
         get("/getGreWordViewsCountByName", (req, res) -> {
             try {
                 //Set JSON response

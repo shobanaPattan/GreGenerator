@@ -17,8 +17,6 @@ public class MySQLUtil {
             throw new RuntimeException("Failed to load SQL queries", e);
         }
     }
-
-    // TODO: give better name other than "get". If anyone else wants to use this, they won't know what this gets
     public static String getSQLQuery(String key) {
         return queries.getProperty(key);
     }

@@ -2,19 +2,11 @@ package org.gregenai.dependency.db;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import org.apache.hadoop.mapred.Mapper;
-import org.apache.hadoop.shaded.org.apache.kerby.kerberos.kerb.server.replay.CacheService;
-import org.apache.hadoop.shaded.org.apache.kerby.kerberos.kerb.server.replay.RequestRecord;
 import org.gregenai.Iinterface.CacheServices;
 import org.gregenai.model.GreRequest;
 import org.gregenai.util.AbstractDataBaseConnector;
 import org.gregenai.util.JSONUtil;
-import org.gregenai.util.RedisUtil;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.params.ScanParams;
@@ -23,7 +15,6 @@ import software.amazon.awssdk.auth.credentials.EnvironmentVariableCredentialsPro
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
-import software.amazon.awssdk.services.dynamodb.endpoints.internal.Value;
 import software.amazon.awssdk.services.dynamodb.model.*;
 
 import java.util.ArrayList;
@@ -90,9 +81,7 @@ public class DynamoDBConnector extends AbstractDataBaseConnector implements Cach
                 //Saved to Redis cache
                 boolean saveMultipleRecords = saveToCache(resultMap, REDIS_CACHE_TTL_SECONDS);
                 System.out.println(saveMultipleRecords ? "Successfully saved multiple records into Redis cache." : "Failed to save multiple records into Redis cache.");
-
                 System.out.println("Saving key(s) to Redis: " + resultMap.keySet());
-
 
                 System.out.println("Successfully retrieved table from Dynamo DB.");
             }
@@ -117,7 +106,6 @@ public class DynamoDBConnector extends AbstractDataBaseConnector implements Cach
             String redisKey = "GRE : " + greRequest.getName();
             boolean savedResult = saveToCache(redisKey, REDIS_CACHE_TTL_SECONDS, greRequest.getDefinition());
             System.out.println(savedResult ? "Saved to Redis cache" : "Failed to save the GRE details into cache.");
-
 
             return JSONUtil.generateJsonStringFromObject("New Gre word and definition updated : " + greRequest.getName());
         } catch (DynamoDbException e) {
@@ -149,7 +137,6 @@ public class DynamoDBConnector extends AbstractDataBaseConnector implements Cach
             boolean deletedKey = deleteFromCache(cacheKey);
             System.out.println(deletedKey ? "Key deleted From cache." : "Key not found in Redis.");
 
-
             return JSONUtil.generateJsonStringFromObject("Successfully deleted Gre word : " + greRequest.getName());
         } catch (DynamoDbException e) {
             System.err.println("DynamoDB deletion failed: " + e.getMessage());
@@ -180,7 +167,6 @@ public class DynamoDBConnector extends AbstractDataBaseConnector implements Cach
                 resultList.add(resultMap);
 
                 System.out.println("Successfully retrieved Name and Views count from Dynamo DB.");
-//                RedisUtil.setValue(cacheKey, JSONUtil.generateJsonStringFromObject(resultList), 3600);
             }
         } catch (DynamoDbException e) {
             System.err.println("Failed to retrieve values from Dynamo DB " + e.getMessage());
@@ -200,7 +186,6 @@ public class DynamoDBConnector extends AbstractDataBaseConnector implements Cach
             System.out.println(cachedValue);
             return JSONUtil.generateJsonStringFromRedisObject(cachedValue);
         }
-
         try {
             Map<String, AttributeValue> itemKey = new HashMap<>();
             itemKey.put("Training_English_Word", AttributeValue.builder().s(greRequest.getName()).build());
@@ -223,7 +208,6 @@ public class DynamoDBConnector extends AbstractDataBaseConnector implements Cach
                 boolean savedResult = saveToCache(redisKey, REDIS_CACHE_TTL_SECONDS, jsonString);
                 System.out.println(savedResult ? "Saved to Redis cache" : "Failed to save the GRE details into cache.");
 
-//                return JSONUtil.generateJsonStringFromObject(readableResult + "  (Returned from DynamoDB table)");
                 return (jsonString + " Returned from DynamoDb Table.");
             } else {
                 System.out.println("Item not found for key: " + getItemRequest.tableName());
@@ -250,6 +234,12 @@ public class DynamoDBConnector extends AbstractDataBaseConnector implements Cach
 
             UpdateItemResponse updateItemResponse = dynamoDbClient.updateItem(updateItemRequest);
             Map<String, AttributeValue> updatedItem = updateItemResponse.attributes();
+
+            //Update the Redis cache
+            String redisKey = "GRE : " + greRequest.getName();
+            boolean updatedCache = updateRedisCache(redisKey, REDIS_CACHE_TTL_SECONDS, greRequest.getDefinition());
+            System.out.println(updatedCache ? "Updated Redis cache for Gre word " + redisKey + " with " + greRequest.getDefinition() : " Failed to update the Redis cache.");
+
             return JSONUtil.generateJsonStringFromObject("Updated name : " + updatedItem.get("Training_English_Word").s() + ",  with new definition : " + updatedItem.get("Explanation").s());
         } catch (DynamoDbException e) {
             System.err.println("Dynamo DB updating Gre word definition failed " + e.getMessage());
@@ -318,7 +308,7 @@ public class DynamoDBConnector extends AbstractDataBaseConnector implements Cach
             String savedResult = jedis.setex(key, REDIS_CACHE_TTL_SECONDS, value);
             return "OK".equals(savedResult);
         } catch (Exception e) {
-            System.out.println("Redis error while saving to cache : " + e.getMessage());
+            System.err.println("Redis error while saving to cache : " + e.getMessage());
             return false;
         }
     }
@@ -364,6 +354,17 @@ public class DynamoDBConnector extends AbstractDataBaseConnector implements Cach
     }
 
     @Override
+    public boolean updateRedisCache(String key, long TTlSeconds, String value) {
+        try (Jedis jedis = jedisPool.getResource()) {
+            String updateCache = jedis.setex(key, REDIS_CACHE_TTL_SECONDS, value);
+            return "OK".equals(updateCache);
+        } catch (Exception e) {
+            System.err.println("Failed to update the redis cache." + e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
     public boolean saveToCache(Map<String, Object> cacheEntries, long TTlSeconds) {
         ObjectMapper objectMapper = new ObjectMapper();
         try (Jedis jedis = jedisPool.getResource()) {
@@ -387,17 +388,4 @@ public class DynamoDBConnector extends AbstractDataBaseConnector implements Cach
         }
         return true;
     }
-
-
-//
-//    @Override
-//    public String get(String key) {
-//        GreRequest greRequest = null;
-//        String cached = RedisUtil.getValue(greRequest.getName());
-//        if (cached != null) {
-//            System.out.println("Records retrieved from Redis Cache.");
-//            return mapper.readValue;
-//        }
-//
-//    }
 }

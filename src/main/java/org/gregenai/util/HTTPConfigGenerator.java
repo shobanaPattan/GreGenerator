@@ -21,8 +21,19 @@ public class HTTPConfigGenerator {
 
     private static String getResponseType(Request req) {
         String responseType = "application/json";
-        if (!responseType.equalsIgnoreCase(req.headers("Accept"))) {
+//        if (!responseType.equalsIgnoreCase(req.headers("Accept"))) {
+//            throw new IllegalArgumentException("Unsupported Header: Accept. Only JSON supported.");
+//        } else if (!responseType.equalsIgnoreCase(req.headers("Content-Type"))) {
+//            throw new IllegalArgumentException("Unsupported Header: Content-Type. Only JSON supported.");
+//        }
+
+        String acceptHeaders = req.headers("Accept");
+        if (acceptHeaders == null || !acceptHeaders.toLowerCase().contains("application/json")) {
             throw new IllegalArgumentException("Unsupported Header: Accept. Only JSON supported.");
+        }
+        String contentHeaders = req.headers("Content-Type");
+        if (contentHeaders == null || !contentHeaders.equalsIgnoreCase(responseType)) {
+            throw new IllegalArgumentException("Unsupported Header: Content-Type. Only application/json is supported.");
         }
         return responseType;
     }
@@ -41,22 +52,22 @@ public class HTTPConfigGenerator {
         return dataBaseType;
     }
 
-    private static GreRequest validateAndReturnRequestBody(Request request) {
-        GreRequest greRequest;
-        try {
-            greRequest = gson.fromJson(request.body(), GreRequest.class);
-
-            if (greRequest == null) {
-                throw new IllegalArgumentException("Request body is empty, cannot be null.");
-            }
-//            if (StringUtils.isNotEmpty(greRequest.getName()) && StringUtils.isNotEmpty(greRequest.getDefinition())) {
-            return greRequest;
+//    private static GreRequest validateAndReturnRequestBody(Request request) {
+//        GreRequest greRequest;
+//        try {
+//            greRequest = gson.fromJson(request.body(), GreRequest.class);
+//
+//            if (greRequest == null) {
+//                throw new IllegalArgumentException("Request body is empty, cannot be null.");
 //            }
-        } catch (JsonSyntaxException e) {
-            throw new IllegalArgumentException("Invalid JSON format.", e);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Input is not valid.");
-        }
-//        return null;
-    }
+////            if (StringUtils.isNotEmpty(greRequest.getName()) && StringUtils.isNotEmpty(greRequest.getDefinition())) {
+//            return greRequest;
+////            }
+//        } catch (JsonSyntaxException e) {
+//            throw new IllegalArgumentException("Invalid JSON format.", e);
+//        } catch (Exception e) {
+//            throw new IllegalArgumentException("Input is not valid.");
+//        }
+////        return null;
+//    }
 }

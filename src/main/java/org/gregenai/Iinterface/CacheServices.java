@@ -15,4 +15,5 @@ public interface CacheServices {
 
     Map<String, Object> getAllRecordsFromCache();
 
+    boolean updateRedisCache(String key,long TTlSeconds, String value);
 }

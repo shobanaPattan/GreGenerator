@@ -1,11 +1,13 @@
 package org.gregenai.dependency.db;
 
+import org.apache.hadoop.yarn.exceptions.ResourceNotFoundException;
 import org.apache.hadoop.yarn.webapp.hamlet2.Hamlet;
 import org.gregenai.model.GreRequest;
 import org.gregenai.util.AbstractDataBaseConnector;
 import org.gregenai.util.JSONUtil;
 import org.gregenai.util.MySQLUtil;
 
+import java.io.FileNotFoundException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -72,8 +74,6 @@ public class MySQLDBConnector extends AbstractDataBaseConnector {
 
             //SQl Query
             Statement statement = connection.createStatement();
-            // TODO: What if your code does not find select.all in properties file?
-            // Hint: FileNot-foundException / ResourceNotFoundException
             ResultSet result = statement.executeQuery(MySQLUtil.getSQLQuery("select.all"));
             System.out.println("Statement : " + statement);
 
@@ -93,6 +93,8 @@ public class MySQLDBConnector extends AbstractDataBaseConnector {
             System.out.println("Table Found!");
         } catch (SQLException e) {
             System.err.println("Failed to display the SQL table");
+        } catch (ResourceNotFoundException e) {
+            System.err.println("Failed to find SQL query properties file.");
         }
         return JSONUtil.generateJsonStringFromObject(rows);
 
@@ -129,6 +131,8 @@ public class MySQLDBConnector extends AbstractDataBaseConnector {
         } catch (SQLException e) {
             System.err.println("Failed to execute SQL with WHERE clause query");
             throw new RuntimeException(e);
+        } catch (ResourceNotFoundException e) {
+            System.err.println("Failed to find SQL query properties file.");
         }
         return JSONUtil.generateJsonStringFromObject(resultData);
     }
@@ -177,6 +181,8 @@ public class MySQLDBConnector extends AbstractDataBaseConnector {
                 System.out.println("Views for " + greRequest.getName() + " do not exist.");
                 return null;
             }
+        } catch (ResourceNotFoundException e) {
+            System.err.println("Failed to find SQL query properties file.");
         } catch (SQLException e) {
             System.err.println("Failed to execute the select views SQL query");
             throw new RuntimeException(e);
