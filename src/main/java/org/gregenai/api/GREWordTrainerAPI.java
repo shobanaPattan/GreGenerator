@@ -24,7 +24,8 @@ public class GREWordTrainerAPI {
             try {
                 HTTPHeaderModel httpConfigModel = HTTPConfigGenerator.getConfigModelFromHTTP(req);
                 //Set JSON response
-                res.type(httpConfigModel.getResType());
+//                res.type(httpConfigModel.getResType());
+                res.type(httpConfigModel.getResponseType());
                 AbstractDataBaseConnector db = DataBaseConnectorFactory.getDataBaseConnector(httpConfigModel.getDataBaseType());
                 return db.readRecords();
             } catch (Exception e) {
@@ -40,7 +41,8 @@ public class GREWordTrainerAPI {
             try {
                 HTTPHeaderModel httpConfigModel = HTTPConfigGenerator.getConfigModelFromHTTP(req);
                 //Set JSON response
-                res.type(httpConfigModel.getResType());
+//                res.type(httpConfigModel.getResType());
+                res.type(httpConfigModel.getResponseType());
 
                 GreRequest greRequest = validateAndReturnRequestBody(req);
                 AbstractDataBaseConnector db = DataBaseConnectorFactory.getDataBaseConnector(httpConfigModel.getDataBaseType());
@@ -62,7 +64,8 @@ public class GREWordTrainerAPI {
                 //Set JSON response
                 HTTPHeaderModel httpConfigModel = HTTPConfigGenerator.getConfigModelFromHTTP(req);
                 //Set JSON response
-                res.type(httpConfigModel.getResType());
+//                res.type(httpConfigModel.getResType());
+                res.type(httpConfigModel.getResponseType());
 
                 GreRequest greRequest = validateAndReturnRequestBody(req);
 
@@ -85,7 +88,8 @@ public class GREWordTrainerAPI {
                 //Set JSON response
                 HTTPHeaderModel httpConfigModel = HTTPConfigGenerator.getConfigModelFromHTTP(req);
                 //Set JSON response
-                res.type(httpConfigModel.getResType());
+//                res.type(httpConfigModel.getResType());
+                res.type(httpConfigModel.getResponseType());
 
                 GreRequest greRequest = validateAndReturnRequestBody(req);
 
@@ -108,7 +112,8 @@ public class GREWordTrainerAPI {
                 //Set JSON response
                 HTTPHeaderModel httpConfigModel = HTTPConfigGenerator.getConfigModelFromHTTP(req);
                 //Set JSON response
-                res.type(httpConfigModel.getResType());
+//                res.type(httpConfigModel.getResType());
+                res.type(httpConfigModel.getResponseType());
 
                 GreRequest greRequest = validateAndReturnRequestBody(req);
 
@@ -131,7 +136,8 @@ public class GREWordTrainerAPI {
                 //Set JSON response
                 HTTPHeaderModel httpConfigModel = HTTPConfigGenerator.getConfigModelFromHTTP(req);
                 //Set JSON response
-                res.type(httpConfigModel.getResType());
+//                res.type(httpConfigModel.getResType());
+                res.type(httpConfigModel.getResponseType());
 
                 GreRequest greRequest = validateAndReturnRequestBody(req);
 

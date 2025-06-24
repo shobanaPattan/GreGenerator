@@ -1,5 +1,8 @@
 package org.gregenai.model;
 
+import lombok.Data;
+
+@Data
 public class GreRequest {
     // TODO: Create a builder for this model POJO based on annotation framework like lombok
     private String name;
@@ -7,6 +10,7 @@ public class GreRequest {
     private String databaseType;
 
     private GreRequest greRequest;
+
 
     public GreRequest(GreBuilder greBuilder) {
         this.name = greBuilder.name;
@@ -42,6 +46,7 @@ public class GreRequest {
         this.databaseType = databaseType;
     }
 
+    @Data
     public static class GreBuilder {
         private String name;
         private String definition;
