@@ -3,31 +3,31 @@ package org.gregenai.api;
 import org.gregenai.factory.DataBaseConnectorFactory;
 import org.gregenai.model.GreRequest;
 import org.gregenai.model.HTTPHeaderModel;
-import org.gregenai.util.AbstractDataBaseConnector;
-import org.gregenai.util.HTTPConfigGenerator;
+import org.gregenai.dependency.db.AbstractDataBaseConnector;
+import org.gregenai.util.HTTPConfigUtil;
 import org.gregenai.util.JSONUtil;
 
 import static org.gregenai.validators.InputValidator.validateAndReturnRequestBody;
 import static spark.Spark.*;
 
 //http://localhost:4567/getGreWord executes the following program on port 4567
+// TODO: Add java doc for this class and every API
 public class GREWordTrainerAPI {
-//    static String responseType = "application/json";
-
     public static void main(String[] args) {
         System.out.println("Loading API's");
-
-//        Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         //Get all gre word records
         get("/getRecords", (req, res) -> {
             try {
-                HTTPHeaderModel httpConfigModel = HTTPConfigGenerator.getConfigModelFromHTTP(req);
+                // build http header model
+                HTTPHeaderModel httpConfigModel = HTTPConfigUtil.getConfigModelFromHTTP(req);
                 //Set JSON response
-//                res.type(httpConfigModel.getResType());
                 res.type(httpConfigModel.getResponseType());
+
                 AbstractDataBaseConnector db = DataBaseConnectorFactory.getDataBaseConnector(httpConfigModel.getDataBaseType());
+
                 return db.readRecords();
+
             } catch (Exception e) {
                 System.err.println("Failed to find the table");
                 e.printStackTrace();
@@ -39,13 +39,14 @@ public class GREWordTrainerAPI {
         //Get Gre Word Details by name
         get("/getGreWordDetailsByName", (req, res) -> {
             try {
-                HTTPHeaderModel httpConfigModel = HTTPConfigGenerator.getConfigModelFromHTTP(req);
+                HTTPHeaderModel httpConfigModel = HTTPConfigUtil.getConfigModelFromHTTP(req);
                 //Set JSON response
-//                res.type(httpConfigModel.getResType());
                 res.type(httpConfigModel.getResponseType());
 
                 GreRequest greRequest = validateAndReturnRequestBody(req);
+
                 AbstractDataBaseConnector db = DataBaseConnectorFactory.getDataBaseConnector(httpConfigModel.getDataBaseType());
+
                 return db.readRecordsByName(greRequest);
 
             } catch (IllegalArgumentException exception) {
@@ -61,15 +62,14 @@ public class GREWordTrainerAPI {
         //POST Gre word and definition
         post("/postGreWord", (req, res) -> {
             try {
+                HTTPHeaderModel httpConfigModel = HTTPConfigUtil.getConfigModelFromHTTP(req);
                 //Set JSON response
-                HTTPHeaderModel httpConfigModel = HTTPConfigGenerator.getConfigModelFromHTTP(req);
-                //Set JSON response
-//                res.type(httpConfigModel.getResType());
                 res.type(httpConfigModel.getResponseType());
 
                 GreRequest greRequest = validateAndReturnRequestBody(req);
 
                 AbstractDataBaseConnector db = DataBaseConnectorFactory.getDataBaseConnector(httpConfigModel.getDataBaseType());
+
                 return db.createRecords(greRequest);
 
             } catch (IllegalArgumentException exception) {
@@ -85,15 +85,15 @@ public class GREWordTrainerAPI {
         // DELETE Gre word by name
         delete("/deleteItemByName", (req, res) -> {
             try {
+
+                HTTPHeaderModel httpConfigModel = HTTPConfigUtil.getConfigModelFromHTTP(req);
                 //Set JSON response
-                HTTPHeaderModel httpConfigModel = HTTPConfigGenerator.getConfigModelFromHTTP(req);
-                //Set JSON response
-//                res.type(httpConfigModel.getResType());
                 res.type(httpConfigModel.getResponseType());
 
                 GreRequest greRequest = validateAndReturnRequestBody(req);
 
                 AbstractDataBaseConnector db = DataBaseConnectorFactory.getDataBaseConnector(httpConfigModel.getDataBaseType());
+
                 return db.deleteRecords(greRequest);
 
             } catch (IllegalArgumentException exception) {
@@ -109,15 +109,14 @@ public class GREWordTrainerAPI {
         //Update existing Gre word definition
         put("/updateGreDefinitionByName", (req, res) -> {
             try {
+                HTTPHeaderModel httpConfigModel = HTTPConfigUtil.getConfigModelFromHTTP(req);
                 //Set JSON response
-                HTTPHeaderModel httpConfigModel = HTTPConfigGenerator.getConfigModelFromHTTP(req);
-                //Set JSON response
-//                res.type(httpConfigModel.getResType());
                 res.type(httpConfigModel.getResponseType());
 
                 GreRequest greRequest = validateAndReturnRequestBody(req);
 
                 AbstractDataBaseConnector db = DataBaseConnectorFactory.getDataBaseConnector(httpConfigModel.getDataBaseType());
+
                 return db.updateRecords(greRequest);
 
             } catch (IllegalArgumentException exception) {
@@ -134,14 +133,14 @@ public class GREWordTrainerAPI {
         get("/getGreWordViewsCountByName", (req, res) -> {
             try {
                 //Set JSON response
-                HTTPHeaderModel httpConfigModel = HTTPConfigGenerator.getConfigModelFromHTTP(req);
+                HTTPHeaderModel httpConfigModel = HTTPConfigUtil.getConfigModelFromHTTP(req);
                 //Set JSON response
-//                res.type(httpConfigModel.getResType());
                 res.type(httpConfigModel.getResponseType());
 
                 GreRequest greRequest = validateAndReturnRequestBody(req);
 
                 AbstractDataBaseConnector db = DataBaseConnectorFactory.getDataBaseConnector(httpConfigModel.getDataBaseType());
+
                 return db.readViewsCount(greRequest);
 
             } catch (IllegalArgumentException exception) {

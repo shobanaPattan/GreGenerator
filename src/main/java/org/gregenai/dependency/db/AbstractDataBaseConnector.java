@@ -1,4 +1,4 @@
-package org.gregenai.util;
+package org.gregenai.dependency.db;
 
 import org.gregenai.model.GreRequest;
 

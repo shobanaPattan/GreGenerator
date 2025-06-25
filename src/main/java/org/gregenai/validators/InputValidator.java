@@ -4,25 +4,14 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import org.gregenai.model.GreRequest;
 import spark.Request;
-import spark.utils.StringUtils;
 
 public class InputValidator {
     static Gson gson = new Gson();
-
-
-    public static GreRequest getGreRequestObject(Request request) {
-        GreRequest.GreBuilder greBuilder = new GreRequest.GreBuilder();
-        greBuilder.setGreRequestObject(validateAndReturnRequestBody(request));
-
-        return greBuilder.build();
-    }
-
 
     public static GreRequest validateAndReturnRequestBody(Request requestBody) {
         GreRequest greRequest;
         try {
             greRequest = gson.fromJson(requestBody.body(), GreRequest.class);
-
             if (greRequest == null) {
                 throw new IllegalArgumentException("Request body is empty.");
             }

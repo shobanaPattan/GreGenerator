@@ -1,13 +1,10 @@
 package org.gregenai.dependency.db;
 
 import org.apache.hadoop.yarn.exceptions.ResourceNotFoundException;
-import org.apache.hadoop.yarn.webapp.hamlet2.Hamlet;
 import org.gregenai.model.GreRequest;
-import org.gregenai.util.AbstractDataBaseConnector;
 import org.gregenai.util.JSONUtil;
 import org.gregenai.util.MySQLUtil;
 
-import java.io.FileNotFoundException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,6 +31,7 @@ public class MySQLDBConnector extends AbstractDataBaseConnector {
             //Validating connection
             if (connection == null) {
                 System.err.println("Failed to create MySQL DataBase connection, shutting down the application.");
+                //Todo: use halt for response if connection is null
                 spark.Spark.stop();
             }
         } catch (SQLException e) {
@@ -97,7 +95,6 @@ public class MySQLDBConnector extends AbstractDataBaseConnector {
             System.err.println("Failed to find SQL query properties file.");
         }
         return JSONUtil.generateJsonStringFromObject(rows);
-
     }
 
 
