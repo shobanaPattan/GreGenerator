@@ -7,6 +7,7 @@ import org.gregenai.dependency.db.AbstractDataBaseConnector;
 import org.gregenai.util.HTTPConfigUtil;
 import org.gregenai.util.JSONUtil;
 
+import static org.gregenai.htmlload.LoadHTMLFile.loadHtmlFile;
 import static org.gregenai.validators.InputValidator.validateAndReturnRequestBody;
 import static spark.Spark.*;
 
@@ -153,6 +154,16 @@ public class GREWordTrainerAPI {
             }
         });
 
+
+        get("/gethtml", (req, res) -> {
+            try {
+                res.type("text/html");
+                return loadHtmlFile("index.html");
+            } catch (Exception e) {
+                e.printStackTrace();
+                return JSONUtil.generateErrorJsonStringFromObject("Failed to execute HTML file.");
+            }
+        });
 
         awaitInitialization(); // make sure server is ready
 
