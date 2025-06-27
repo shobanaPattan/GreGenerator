@@ -155,7 +155,7 @@ public class GREWordTrainerAPI {
         });
 
 
-        get("/gethtml", (req, res) -> {
+        get("/getGreApp", (req, res) -> {
             try {
                 res.type("text/html");
                 return loadHtmlFile("index.html");
