@@ -154,6 +154,29 @@ public class GREWordTrainerAPI {
             }
         });
 
+        //Get Gre Word details with the least views count
+        get("/getGreWordDetailsByViewCount", (req, res) -> {
+            try {
+                HTTPHeaderModel httpConfigModel = HTTPConfigUtil.getConfigModelFromHTTP(req);
+                //Set JSON response
+                res.type(httpConfigModel.getResponseType());
+
+                GreRequest greRequest = validateAndReturnRequestBody(req);
+
+                AbstractDataBaseConnector db = DataBaseConnectorFactory.getDataBaseConnector(httpConfigModel.getDataBaseType());
+
+                return db.readNameByViewsCount(greRequest);
+
+            } catch (IllegalArgumentException exception) {
+                return JSONUtil.generateErrorJsonStringFromObject("Input is invalid.");
+            } catch (Exception e) {
+                System.err.println("Failed to find a definition");
+                e.printStackTrace();
+                res.status();
+                return JSONUtil.generateErrorJsonStringFromObject("Failed to retrieve values from database.");
+            }
+        });
+
 
         get("/getGreApp", (req, res) -> {
             try {

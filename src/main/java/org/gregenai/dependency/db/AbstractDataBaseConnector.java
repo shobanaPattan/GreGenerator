@@ -15,4 +15,6 @@ public abstract class AbstractDataBaseConnector {
     public abstract String deleteRecords(GreRequest greRequest);
 
     public abstract String readViewsCount(GreRequest greRequest);
+
+    public abstract String readNameByViewsCount(GreRequest greRequest);
 }

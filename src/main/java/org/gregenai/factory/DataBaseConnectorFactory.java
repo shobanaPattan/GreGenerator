@@ -6,13 +6,16 @@ import org.gregenai.dependency.db.AbstractDataBaseConnector;
 
 public class DataBaseConnectorFactory {
     public static AbstractDataBaseConnector getDataBaseConnector(String dbType) {
-        if (dbType.equalsIgnoreCase("mysql")) {
+        System.out.println("Executing DB connector");
+        System.out.println("DataBase Type : " + dbType);
+        if (dbType.trim().equalsIgnoreCase("mysql")) {
             return new MySQLDBConnector();
-        } else if (dbType.equalsIgnoreCase("dynamodb")) {
+        } else if (dbType.trim().equalsIgnoreCase("dynamodb")) {
             return new DynamoDBConnector();
         } else {
-            // TODO: or maybe default to one of the above if its ok
-            throw new IllegalArgumentException("Unsupported database type: " + dbType);
+            System.out.println("DataType is empty or miss spelled : " + dbType + ", so returning MySQL DB as default.");
+            return new MySQLDBConnector();
+//            throw new IllegalArgumentException("Unsupported database type: " + dbType);
         }
     }
 }

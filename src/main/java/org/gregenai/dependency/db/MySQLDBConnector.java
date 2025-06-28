@@ -32,7 +32,8 @@ public class MySQLDBConnector extends AbstractDataBaseConnector {
             if (connection == null) {
                 System.err.println("Failed to create MySQL DataBase connection, shutting down the application.");
                 //Todo: use halt for response if connection is null
-                spark.Spark.stop();
+                spark.Spark.stop(); //Stops the server
+                System.exit(1); //Then exits the JVM
             }
         } catch (SQLException e) {
             System.err.println("Loading the connection object failed.");
@@ -185,6 +186,37 @@ public class MySQLDBConnector extends AbstractDataBaseConnector {
             throw new RuntimeException(e);
         }
         return JSONUtil.generateJsonStringFromObject(resultData);
+    }
+
+    @Override
+    public String readNameByViewsCount(GreRequest greRequest) {
+        List<Map<String, String>> rows = new ArrayList<>();
+        try {
+            //SQl Query
+            Statement statement = connection.createStatement();
+            ResultSet result = statement.executeQuery(MySQLUtil.getSQLQuery("select.name.by.views.count"));
+            System.out.println("Statement : " + statement);
+
+            ResultSetMetaData resultMetaData = result.getMetaData();
+            int columnCount = resultMetaData.getColumnCount();
+
+            while (result.next()) {
+                Map<String, String> row = new HashMap<>();
+                for (int i = 1; i <= columnCount; i++) {
+                    String columnName = resultMetaData.getColumnName(i);
+                    String columnValue = result.getString(i);
+                    row.put(columnName, columnValue);
+                    System.out.print(columnName + " : " + columnValue + " | ");
+                }
+                rows.add(row);
+            }
+            System.out.println("Found Gre Word and Definition with least View count.");
+        } catch (SQLException e) {
+            System.err.println("Failed to find GRE word and Definition with least View count.");
+        } catch (ResourceNotFoundException e) {
+            System.err.println("Failed to find SQL query properties file.");
+        }
+        return JSONUtil.generateJsonStringFromObject(rows);
     }
 
     @Override

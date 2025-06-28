@@ -40,7 +40,8 @@ public class DynamoDBConnector extends AbstractDataBaseConnector implements Cach
             //Validating connection
             if (dynamoDbClient == null) {
                 System.err.println("Failed to create Dynamo DB connection, shutting down the application.");
-                spark.Spark.stop();
+                spark.Spark.stop(); //Stops the server
+                System.exit(1); //Then exists the JVM
             }
         } catch (DynamoDbException e) {
             System.err.println("Dynamo error : " + e.awsErrorDetails().errorMessage());
@@ -173,6 +174,11 @@ public class DynamoDBConnector extends AbstractDataBaseConnector implements Cach
         }
         return JSONUtil.generateJsonStringFromObject(resultList);
 
+    }
+
+    @Override
+    public String readNameByViewsCount(GreRequest greRequest) {
+        return null;
     }
 
     //Method to get GRE word details by name
