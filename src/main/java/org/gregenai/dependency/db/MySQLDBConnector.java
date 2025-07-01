@@ -108,7 +108,7 @@ public class MySQLDBConnector extends AbstractDataBaseConnector {
             PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
             preparedStatement.setString(1, greRequest.getName());
 
-            updateViewRecords(greRequest);
+            incrementViewRecords(greRequest);
 
             System.out.println("Prepared to execute the select by name SQL query");
             ResultSet result = preparedStatement.executeQuery();
@@ -237,9 +237,9 @@ public class MySQLDBConnector extends AbstractDataBaseConnector {
         }
     }
 
-    public void updateViewRecords(GreRequest greRequest) {
-        //SQL Query to update the view count
-        String sqlQuery = (greRequest.getName() == null) ? MySQLUtil.getSQLQuery("update.views") : MySQLUtil.getSQLQuery("update.views.by.name");
+    public void incrementViewRecords(GreRequest greRequest) {
+        //SQL Query to increment the view count
+        String sqlQuery = (greRequest.getName() == null) ? MySQLUtil.getSQLQuery("update.views") : MySQLUtil.getSQLQuery("increment.views.by.name");
         try (PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery)) {
             if (greRequest.getName() != null) {
                 preparedStatement.setString(1, greRequest.getName());
@@ -252,4 +252,22 @@ public class MySQLDBConnector extends AbstractDataBaseConnector {
             throw new RuntimeException(e);
         }
     }
+
+    public void decrementViewRecords(GreRequest greRequest) {
+        //SQL Query to decrement the view count
+        String sqlQuery = MySQLUtil.getSQLQuery("decrement.view.count.by.name");
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery)) {
+            if (greRequest.getName() != null) {
+                preparedStatement.setString(1, greRequest.getName());
+            }
+            int rowsCount = preparedStatement.executeUpdate();
+            System.out.println(rowsCount + "row(s) updated");
+            System.out.println("Successfully updated the views count!");
+        } catch (SQLException e) {
+            System.err.println("Failed to update the views count.");
+            throw new RuntimeException(e);
+        }
+    }
+
+
 }

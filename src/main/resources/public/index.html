@@ -9,22 +9,20 @@
 <h1> Welcome to Gre Word Generator App </h1>
 <p> Gre Word : </p>
 <label>
-    <input type="text" placeholder="Gre Word">
+    <input type="text" id="greWordInput" placeholder="Gre Word">
 </label><br>
 <p> Word Definition : </p>
 <label>
-    <input type="text" placeholder="Gre Word definition">
+    <input type="text" id="greWordDefinition" placeholder="Gre Word definition">
 </label><br>
 <p> Example : </p>
 <label>
-    <input type="text" placeholder="Gre Word example">
+    <input type="text" id="greWordExample" placeholder="Gre Word example">
 </label><br>
 
-<button onclick="">Click to retrieve new word</button>
+<button onclick="callGetWordDetailsApi()">Click to retrieve new word</button>
 <button onclick=""> Click to submit new word</button>
-<!--<label>-->
-<!--    <input type="text" placeholder="Submit GRE word">-->
-<!--</label>-->
 
+<script src="javascript/app.js"></script>
 </body>
 </html>

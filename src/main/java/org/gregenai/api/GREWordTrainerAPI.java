@@ -17,6 +17,8 @@ public class GREWordTrainerAPI {
     public static void main(String[] args) {
         System.out.println("Loading API's");
 
+        staticFiles.location("/public");
+
         //Get all gre word records
         get("/getRecords", (req, res) -> {
             try {
