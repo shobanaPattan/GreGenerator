@@ -40,7 +40,7 @@ public class GREWordTrainerAPI {
         });
 
         //Get Gre Word Details by name
-        get("/getGreWordDetailsByName", (req, res) -> {
+        post("/getGreWordDetailsByName", (req, res) -> {
             try {
                 HTTPHeaderModel httpConfigModel = HTTPConfigUtil.getConfigModelFromHTTP(req);
                 //Set JSON response
