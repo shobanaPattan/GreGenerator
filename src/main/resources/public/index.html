@@ -7,14 +7,18 @@
 </head>
 <body>
 <h1> Welcome to Gre Word Generator App </h1>
+
+<!-- Search Section -->
 <p> Gre Word : </p>
 <label>
     <input type="text" id="greWordInput" placeholder="Gre Word">
 </label><br>
+
 <p> Word Definition : </p>
 <label>
     <input type="text" id="greWordDefinition" placeholder="Gre Word definition" readonly>
 </label><br>
+
 <p> Example : </p>
 <label>
     <input type="text" id="greWordExample" placeholder="Gre Word example" readonly>
@@ -22,6 +26,12 @@
 
 <button onclick="callGetWordDetailsApi()">Click to retrieve new word</button>
 <button onclick=""> Click to submit new word</button>
+
+<!--&lt;!&ndash; Least Viewed Word section &ndash;&gt;-->
+<!--<h2>Least Viewed Word</h2>-->
+<!--<p>Word: <span id="LeastViewedWord">Loading...</span></p>-->
+<!--<p>Definition: <span id="leastViewedDefinition">Loading...</span></p>-->
+
 
 <script src="javascript/app.js"></script>
 </body>

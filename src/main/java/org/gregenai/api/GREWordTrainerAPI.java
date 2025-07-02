@@ -19,6 +19,10 @@ public class GREWordTrainerAPI {
 
         staticFiles.location("/public");
 
+        before((req, res) -> {
+            System.out.println("Incoming request: " + req.requestMethod() + " " + req.pathInfo());
+        });
+
         //Get all gre word records
         get("/getRecords", (req, res) -> {
             try {
@@ -41,6 +45,8 @@ public class GREWordTrainerAPI {
 
         //Get Gre Word Details by name
         post("/getGreWordDetailsByName", (req, res) -> {
+            System.out.println("Received API call.");
+
             try {
                 HTTPHeaderModel httpConfigModel = HTTPConfigUtil.getConfigModelFromHTTP(req);
                 //Set JSON response
@@ -157,17 +163,15 @@ public class GREWordTrainerAPI {
         });
 
         //Get Gre Word details with the least views count
-        get("/getGreWordDetailsByViewCount", (req, res) -> {
+        post("/getGreWordDetailsByViewCount", (req, res) -> {
             try {
                 HTTPHeaderModel httpConfigModel = HTTPConfigUtil.getConfigModelFromHTTP(req);
                 //Set JSON response
                 res.type(httpConfigModel.getResponseType());
 
-                GreRequest greRequest = validateAndReturnRequestBody(req);
-
                 AbstractDataBaseConnector db = DataBaseConnectorFactory.getDataBaseConnector(httpConfigModel.getDataBaseType());
 
-                return db.readNameByViewsCount(greRequest);
+                return db.readNameByViewsCount();
 
             } catch (IllegalArgumentException exception) {
                 return JSONUtil.generateErrorJsonStringFromObject("Input is invalid.");

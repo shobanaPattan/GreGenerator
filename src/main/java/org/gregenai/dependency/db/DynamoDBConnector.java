@@ -10,6 +10,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.params.ScanParams;
 import redis.clients.jedis.resps.ScanResult;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.EnvironmentVariableCredentialsProvider;
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.regions.Region;
@@ -35,7 +36,7 @@ public class DynamoDBConnector extends AbstractDataBaseConnector implements Cach
             System.out.println(" ********* Connecting to AWS DynamoDB ********* ");
             dynamoDbClient = DynamoDbClient.builder().
                     region(Region.US_EAST_1).
-                    credentialsProvider(EnvironmentVariableCredentialsProvider.create()).build();
+                    credentialsProvider(DefaultCredentialsProvider.create()).build(); //uses AWS configure credentials
 
             //Validating connection
             if (dynamoDbClient == null) {
@@ -177,7 +178,7 @@ public class DynamoDBConnector extends AbstractDataBaseConnector implements Cach
     }
 
     @Override
-    public String readNameByViewsCount(GreRequest greRequest) {
+    public String readNameByViewsCount() {
         return null;
     }
 
@@ -214,7 +215,8 @@ public class DynamoDBConnector extends AbstractDataBaseConnector implements Cach
                 boolean savedResult = saveToCache(redisKey, jsonString, REDIS_CACHE_TTL_SECONDS);
                 System.out.println(savedResult ? "Saved to Redis cache" : "Failed to save the GRE details into cache.");
 
-                return (jsonString + " Returned from DynamoDb Table.");
+//                return (jsonString + " Returned from DynamoDb Table.");
+                return (jsonString);
             } else {
                 System.out.println("Item not found for key: " + greRequest.getName());
                 return JSONUtil.generateErrorJsonStringFromObject("Gre word " + greRequest.getName() + " not found.");

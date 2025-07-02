@@ -16,5 +16,5 @@ public abstract class AbstractDataBaseConnector {
 
     public abstract String readViewsCount(GreRequest greRequest);
 
-    public abstract String readNameByViewsCount(GreRequest greRequest);
+    public abstract String readNameByViewsCount();
 }

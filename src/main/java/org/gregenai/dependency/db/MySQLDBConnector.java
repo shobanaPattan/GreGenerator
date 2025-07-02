@@ -189,7 +189,7 @@ public class MySQLDBConnector extends AbstractDataBaseConnector {
     }
 
     @Override
-    public String readNameByViewsCount(GreRequest greRequest) {
+    public String readNameByViewsCount() {
         List<Map<String, String>> rows = new ArrayList<>();
         try {
             //SQl Query
