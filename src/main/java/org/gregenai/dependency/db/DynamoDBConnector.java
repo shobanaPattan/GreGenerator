@@ -58,12 +58,12 @@ public class DynamoDBConnector extends AbstractDataBaseConnector implements Cach
 
     @Override
     public String readRecords() {
-        System.out.println("Executing Redis cache.........");
-        Map<String, Object> redisCached = getAllRecordsFromCache();
-        if (redisCached != null) {
-            System.out.println("Returned from Redis cache.");
-            return JSONUtil.generateJsonStringFromRedisObject(redisCached);
-        }
+//        System.out.println("Executing Redis cache.........");
+//        Map<String, Object> redisCached = getAllRecordsFromCache();
+//        if (redisCached != null) {
+//            System.out.println("Returned from Redis cache.");
+//            return JSONUtil.generateJsonStringFromRedisObject(redisCached);
+//        }
         System.out.println("Redis cache is empty, now try retrieving from Dynamo DB");
         List<Map<String, Object>> resultList = new ArrayList<>();
         try {
@@ -174,12 +174,44 @@ public class DynamoDBConnector extends AbstractDataBaseConnector implements Cach
             System.err.println("Failed to retrieve values from Dynamo DB " + e.getMessage());
         }
         return JSONUtil.generateJsonStringFromObject(resultList);
-
     }
 
     @Override
     public String readNameByViewsCount() {
-        return null;
+        List<Map<String, Object>> leastViewedItems = new ArrayList<>();
+        Integer leastViews = null;
+        try {
+            //Scan the entire table with columns
+            ScanRequest scanRequest = ScanRequest.builder().tableName("GRE_GENAI").build();
+
+            ScanResponse scanResponse = dynamoDbClient.scan(scanRequest);
+            System.out.println("ScanResponse: " + scanResponse);
+
+
+            for (Map<String, AttributeValue> item : scanResponse.items()) {
+                Map<String, Object> resultMap = convertItemToMap(item);
+
+                //Views count is always an int
+                Integer currentViews = Integer.parseInt(item.get("Views").n());
+
+                //Compare and collect items with the least views count
+                if (leastViews == null || currentViews < leastViews) {
+                    leastViews = currentViews;
+                    leastViewedItems.clear();
+                    leastViewedItems.add(resultMap);
+                } else if (currentViews.equals(leastViews)) {
+                    leastViewedItems.add(resultMap);
+                }
+            }
+            System.out.println("Items with least views count");
+            for (Map<String, Object> item : leastViewedItems) {
+                System.out.println("-------------");
+                item.forEach((Key, Value) -> System.out.println(Key + " : " + Value));
+            }
+        } catch (DynamoDbException e) {
+            System.err.println("Failed tp retrieve values from Dynamo DB: " + e.getMessage());
+        }
+        return JSONUtil.generateJsonStringFromObject(leastViewedItems);
     }
 
     //Method to get GRE word details by name
@@ -280,6 +312,31 @@ public class DynamoDBConnector extends AbstractDataBaseConnector implements Cach
         }
     }
 
+
+    public static boolean checkUserNameOrEmailExists(String userNameValue) {
+        try {
+            Map<String, AttributeValue> key = Map.of("UserName", AttributeValue.fromS(userNameValue));
+            GetItemRequest getItemRequest = GetItemRequest.builder()
+                    .tableName("GRE_GENAI_USERS ").key(key).build();
+
+            Map<String, AttributeValue> item = dynamoDbClient.getItem(getItemRequest).item();
+            if (item != null && !item.isEmpty()) {
+                System.out.println(item);
+                return true;
+            }
+            //Scan for email if not found by username
+            ScanRequest scanRequest = ScanRequest.builder()
+                    .tableName("GRE_GENAI_USERS ")
+                    .filterExpression("email = :val").expressionAttributeValues(Map.of(":val", AttributeValue.fromS(userNameValue))).build();
+
+            return !dynamoDbClient.scan(scanRequest).items().isEmpty();
+        } catch (Exception e) {
+            System.err.println("DynamoDB check failed : " + e.getMessage());
+            return false;
+        }
+    }
+
+
     // Convert AttributeValue map to readable Map<String, Object>
     public static Map<String, Object> convertItemToMap(Map<String, AttributeValue> item) {
         Map<String, Object> readableMap = new HashMap<>();
@@ -303,6 +360,7 @@ public class DynamoDBConnector extends AbstractDataBaseConnector implements Cach
         return readableMap;
     }
 
+    //    ***************************** Redis Cache methods *****************************
     @Override
     public boolean deleteFromCache(String key) {
         try (Jedis jedis = jedisPool.getResource()) {

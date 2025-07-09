@@ -4,35 +4,102 @@
 
     <meta charset="UTF-8">
     <title>Welcome to Gre Word Generator App:</title>
+    <style>
+        body {
+                   font-family: Arial, sans-serif;
+                   text-align: center;
+                   margin-top: 100px;
+               }
+
+               .input-container {
+                   display: flex;
+                   flex-direction: column;
+                   align-items: center;
+                   gap: 10px;
+               }
+
+               input[type="text"] {
+                   padding: 10px;
+                   font-size: 16px;
+                   width: 300px;
+                   border-radius: 8px;
+                   border: 1px solid #ccc;
+               }
+
+               button {
+                   padding: 10px 20px;
+                   font-size: 16px;
+                   border-radius: 8px;
+                   background-color: #007BFF;
+                   color: white;
+                   border: none;
+                   cursor: pointer;
+               }
+
+               button:hover {
+                   background-color: #0056b3;
+               }
+
+
+    </style>
 </head>
 <body>
 <h1> Welcome to Gre Word Generator App </h1>
 
-<!-- Search Section -->
-<p> Gre Word : </p>
-<label>
-    <input type="text" id="greWordInput" placeholder="Gre Word">
-</label><br>
-
-<p> Word Definition : </p>
-<label>
-    <input type="text" id="greWordDefinition" placeholder="Gre Word definition" readonly>
-</label><br>
-
-<p> Example : </p>
-<label>
-    <input type="text" id="greWordExample" placeholder="Gre Word example" readonly>
-</label><br>
-
-<button onclick="callGetWordDetailsApi()">Click to retrieve new word</button>
-<button onclick=""> Click to submit new word</button>
-
-<!--&lt;!&ndash; Least Viewed Word section &ndash;&gt;-->
-<!--<h2>Least Viewed Word</h2>-->
-<!--<p>Word: <span id="LeastViewedWord">Loading...</span></p>-->
-<!--<p>Definition: <span id="leastViewedDefinition">Loading...</span></p>-->
-
+<div class="input-container">
+    <input type="text" id="userNameInput" placeholder="Enter user name or email">
+    <button onclick="submitUser()">Submit</button>
+</div>
 
 <script src="javascript/app.js"></script>
+<!--&lt;!&ndash;<script>&ndash;&gt;-->
+<!--&lt;!&ndash;    function submitUser() {&ndash;&gt;-->
+<!--&lt;!&ndash;    const userName = document.getElementById("userNameInput").value.trim();&ndash;&gt;-->
+<!--&lt;!&ndash;    if(userName === ""){&ndash;&gt;-->
+<!--&lt;!&ndash;   alert("Please enter the valid username or email");&ndash;&gt;-->
+<!--&lt;!&ndash;   return;&ndash;&gt;-->
+<!--&lt;!&ndash;    }&ndash;&gt;-->
+<!--&lt;!&ndash;    window.location.href = "greWordPage.html";&ndash;&gt;-->
+<!--&lt;!&ndash;  }&ndash;&gt;-->
+
+<!--</script>-->
 </body>
 </html>
+
+
+<!--**********************************************************-->
+
+
+<!--&lt;!&ndash; Search Section &ndash;&gt;-->
+<!--<div style="display: flex; align-items: center; gap: 10px;">-->
+<!--    <p style="margin: 0;"> Gre Word :</p>-->
+<!--    <label for="greWordInput">-->
+<!--        <input type="text" id="greWordInput" placeholder="Gre Word">-->
+<!--    </label>-->
+<!--</div>-->
+<!--<br>-->
+
+<!--<div style="display: flex; align-items: center; gap: 10px;">-->
+<!--    <p style="margin: 0;"> Word Definition :</p>-->
+<!--    <label for="greWordDefinition">-->
+<!--        <input type="text" id="greWordDefinition" placeholder="Gre Word definition" readonly>-->
+<!--    </label>-->
+<!--</div>-->
+<!--<br>-->
+
+<!--<div style="display: flex; align-items: center; gap: 10px;">-->
+<!--    <p style="margin: 0;"> Example :</p>-->
+<!--    <label for="greWordExample">-->
+<!--        <input type="text" id="greWordExample" placeholder="Gre Word example" readonly>-->
+<!--    </label>-->
+<!--</div>-->
+<!--<br>-->
+
+<!--<div style="display: flex; gap: 20px; margin-bottom: 10px;">-->
+<!--    <button onclick="callGetWordDetailsApi()">Click to retrieve new word</button>-->
+<!--    <button onclick="callSubmitGREWordDetailsApi()"> Click to submit new word</button>-->
+<!--</div>-->
+<!--<div id="allGreWordContainer">-->
+<!--&lt;!&ndash;    style="margin-top: 20px;&ndash;&gt;-->
+<!--    <button onclick="callGetAllWordRecordsApi()">Click to get all GRE words</button>-->
+<!--</div>-->

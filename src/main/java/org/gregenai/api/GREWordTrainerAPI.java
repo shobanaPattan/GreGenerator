@@ -1,5 +1,6 @@
 package org.gregenai.api;
 
+import org.apache.hadoop.shaded.com.google.gson.JsonObject;
 import org.gregenai.factory.DataBaseConnectorFactory;
 import org.gregenai.model.GreRequest;
 import org.gregenai.model.HTTPHeaderModel;
@@ -7,6 +8,7 @@ import org.gregenai.dependency.db.AbstractDataBaseConnector;
 import org.gregenai.util.HTTPConfigUtil;
 import org.gregenai.util.JSONUtil;
 
+import static org.gregenai.dependency.db.DynamoDBConnector.checkUserNameOrEmailExists;
 import static org.gregenai.htmlload.LoadHTMLFile.loadHtmlFile;
 import static org.gregenai.validators.InputValidator.validateAndReturnRequestBody;
 import static spark.Spark.*;
@@ -24,7 +26,7 @@ public class GREWordTrainerAPI {
         });
 
         //Get all gre word records
-        get("/getRecords", (req, res) -> {
+        post("/getAllRecords", (req, res) -> {
             try {
                 // build http header model
                 HTTPHeaderModel httpConfigModel = HTTPConfigUtil.getConfigModelFromHTTP(req);
@@ -193,6 +195,30 @@ public class GREWordTrainerAPI {
                 return JSONUtil.generateErrorJsonStringFromObject("Failed to execute HTML file.");
             }
         });
+
+
+        post("/checkUserNameOrEmail", (req, res) -> {
+            try {
+                HTTPHeaderModel httpConfigModel = HTTPConfigUtil.getConfigModelFromHTTP(req);
+                //Set JSON response
+                res.type(httpConfigModel.getResponseType());
+
+                boolean exists = checkUserNameOrEmailExists(httpConfigModel.getUserNameType());
+                JsonObject result = new JsonObject();
+                result.addProperty("exists", exists);
+                return result.toString();
+            } catch (IllegalArgumentException e) {
+                return JSONUtil.generateErrorJsonStringFromObject(e.getMessage());
+            } catch (Exception e) {
+                e.printStackTrace();
+                return JSONUtil.generateErrorJsonStringFromObject("Internal server error.");
+            }
+        });
+
+
+
+
+
 
         awaitInitialization(); // make sure server is ready
 

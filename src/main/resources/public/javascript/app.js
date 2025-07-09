@@ -1,4 +1,4 @@
-//Fetch GRE word details by name (on button click)
+// ********* Fetch GRE word details by name (on button click) // *********
 function callGetWordDetailsApi(){
 const word = document.getElementById("greWordInput").value;
 
@@ -23,9 +23,13 @@ return response.json();
 })
 .then(data =>{
 console.log("API response data: ", data);
+console.log("Extracted Result object:", data.Result);
 
 const definition = data.Result?.Explanation || "No definition found.";
 const example = data.Result?.Training_English_Word  || "No example found.";
+
+console.log("Definition:", definition);
+console.log("Example:", example);
 
 document.getElementById("greWordDefinition").value = definition;
 document.getElementById("greWordExample").value = example;
@@ -39,14 +43,14 @@ document.getElementById("greWordDefinition").value = `Error: ${error.message}`;
 
 
 
-//On page load, fill the existing input with least viewed GRE word and details
+// ********* On page load, fill the existing input with least viewed GRE word and details *********
 function loadLeastViewedWord(){
 fetch('/getGreWordDetailsByViewCount',
 {
 method: 'POST',
 headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json', // Ensure it sets response type
+            'Accept': 'application/json',
          },
           body: JSON.stringify({
                 databaseType: "dynamodb"
@@ -61,7 +65,7 @@ return response.json();
 .then(data =>{
 console.log("Least viewed Gre word data ", data);
 
-const firstItem = data.Result?.[0]; //Access the first item in the array
+const firstItem = data.Result?.[0]; //Accessing the first item in the array
 
 const word = firstItem?.Training_English_Word  || "Not available";
 const definition = firstItem?.Explanation || "Not available";
@@ -80,3 +84,163 @@ document.getElementById("greWordDefinition").value = "Error";
 document.addEventListener("DOMContentLoaded",() =>{
 loadLeastViewedWord();
 });
+
+
+
+// ********* Function to get all GRE word records *********
+function callGetAllWordRecordsApi(){
+console.log("Fetching all the GRE word records...");
+
+fetch('/getAllRecords',{
+method: 'POST',
+headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json', // Ensure it sets response type
+        },
+        body: JSON.stringify({
+        databaseType: "dynamodb"
+        })
+})
+.then(response => {
+if(!response.ok){
+throw new Error("Failed to fetch GRE word records.");
+}
+return response.json();
+})
+.then(data =>{
+console.log("API response data: ", data);
+
+const resultsContainer= document.getElementById("allGreWordContainer");
+resultsContainer.innerHTML = ""; //clearing the previous data/content
+
+const records = data.Result || [];
+
+if(records.length === 0){
+resultsContainer.innerHTML = "<p>No records found.</p>";
+return;
+}
+
+// ********* Display only GRE word and explanation columns *********
+const displayFields = [
+{key: "Training_English_Word", label: "GRE Word"},
+{key: "Explanation", label: "Definition"}
+];
+
+//Extracting all column keys
+//const allKeys =Object.keys(records[0]);
+
+//Creating table and headers
+const table = document.createElement("table");
+table.border = "1";
+table.style.borderCollapse = "collapse";
+table.style.width = "100%";
+
+const thead = table.createTHead();
+const headerRow = thead.insertRow();
+
+displayFields.forEach(field =>{
+const th = document.createElement("th");
+th.textContent = field.label;
+th.style.padding = "9px";
+th.style.backgroundColor = "#f2f2f2";
+headerRow.appendChild(th);
+});
+
+//Adding rows for each record
+const tbody = table.createTBody();
+
+records.forEach(record => {
+const row = tbody.insertRow();
+displayFields.forEach(field => {
+const cell =row.insertCell();
+cell.textContent = record[field.key] ?? "";
+cell.style.padding = "9px";
+});
+});
+
+resultsContainer.appendChild(table);
+})
+.catch(error => {
+console.error("Fetch error: ", error);
+document.getElementById("allGreWordContainer").innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+//document.getElementById("greWordExample").value = '';
+});
+}
+
+// ********* Function to submit new GRE word *********
+function callSubmitGREWordDetailsApi(){
+
+fetch('/postGreWord',{
+method: 'POST',
+headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json', // Ensure it sets response type
+        },
+        body: JSON.stringify({
+        name: word,
+        definition: meaning,
+        databaseType: "dynamodb"
+        })
+})
+.then(response => {
+if(!response.ok){
+throw new Error("Failed to post new GRE word.");
+}
+return response.json();
+})
+.then(data =>{
+
+const definition = data.Result?.Explanation || "No definition found.";
+const example = data.Result?.Training_English_Word  || "No example found.";
+
+document.getElementById("greWordDefinition").value = definition;
+document.getElementById("greWordExample").value = example;
+})
+.catch(error => {
+console.error("Fetch error: ", error);
+document.getElementById("greWordDefinition").value = `Error: ${error.message}`;
+//document.getElementById("greWordExample").value = '';
+});
+}
+
+
+
+
+// ********* Function to Submit user name or email and validate the duplicates *********
+function submitUser(){
+const userName = document.getElementById("userNameInput").value.trim();
+
+if(userName === ""){
+alert("Please enter a valid user name or email");
+return;
+}
+
+fetch('/checkUserNameOrEmail',{
+method: 'POST',
+headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json', // Ensure it sets response type
+        },
+        body: JSON.stringify({
+        value: userName,
+        databaseType: "dynamodb"
+        })
+    })
+.then(response => {
+if(!response.ok){
+throw new Error("Failed to find user name or email.");
+}
+return response.json();
+})
+.then(data => {
+if(data.exists){
+window.location.href = "greWordPage.html";
+}else{
+window.location.href = "registerUser.html";
+}
+})
+.catch(error =>{
+console.error("Error checking user: ", error);
+alert("Something went wrong. Please try again.");
+});
+}

@@ -2,19 +2,18 @@ package org.gregenai.util;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
-import org.gregenai.model.GreRequest;
 import org.gregenai.model.HTTPHeaderModel;
 import spark.Request;
 
-import static org.gregenai.util.JSONUtil.gson;
 import static spark.Spark.halt;
 
 public class HTTPConfigUtil {
+    final static Gson gson = new Gson();
     public static HTTPHeaderModel getConfigModelFromHTTP(Request request) {
         final HTTPHeaderModel model = HTTPHeaderModel.builder()
                 .dataBaseType(getDataBaseType(request))
                 .responseType(getResponseType(request))
+                .userNameType(getUserName(request))
                 .build();
         // TODO: Set more headers
         return model;
@@ -42,7 +41,7 @@ public class HTTPConfigUtil {
     }
 
     private static String getDataBaseType(Request request) {
-        final Gson gson = new Gson();
+//        final Gson gson = new Gson();
         final JsonObject jsonObject = gson.fromJson(request.body(), JsonObject.class);
 
         System.out.println("Executing getDataBaseType...");
@@ -60,6 +59,24 @@ public class HTTPConfigUtil {
         System.out.println(dataBaseType);
         return dataBaseType;
     }
+
+    private static String getUserName(Request request) {
+        final JsonObject jsonObject = gson.fromJson(request.body(), JsonObject.class);
+        System.out.println("Executing getUserName...");
+        if (jsonObject == null || !jsonObject.has("userName")) {
+            throw new IllegalArgumentException("Missing user name input or email.");
+        }
+        String userName = jsonObject.get("userName").getAsString().trim();
+        if (userName.isEmpty()) {
+            throw new IllegalArgumentException("User Name or Email cannot be empty.");
+        }
+        System.out.println(userName);
+        return userName;
+    }
+
+
+
+
 
 //    private static GreRequest validateAndReturnRequestBody(Request request) {
 //        GreRequest greRequest;

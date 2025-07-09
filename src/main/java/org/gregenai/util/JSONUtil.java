@@ -30,7 +30,13 @@ public class JSONUtil {
 
     public static String generateJsonStringFromRedisObject(Object resultObject) {
         try {
-            return gson.toJson(Map.of("status", "success", "Result", resultObject, "source", "Redis"));
+            //Parse the String into Map
+            Map<String, Object> parsed = new Gson().fromJson((String) resultObject, Map.class);
+
+            //Extracting the actual Result field if it's wrapped
+            Object innerResult = parsed.get("Result");
+
+            return gson.toJson(Map.of("status", "success", "Result", innerResult != null ? innerResult : parsed, "source", "Redis"));
         } catch (Exception e) {
             System.err.println("Failed to convert Object into Json");
             e.printStackTrace();

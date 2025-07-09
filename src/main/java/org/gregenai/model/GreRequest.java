@@ -12,5 +12,6 @@ public class GreRequest {
     private String name;
     private String definition;
     private String databaseType;
+    private String userName;
 
 }

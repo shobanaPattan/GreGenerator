@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GRE Word Page</title>
+</head>
+<body>
+<h1>GRE Word Details</h1>
+
+<!-- Search Section -->
+<div style="display: flex; align-items: center; gap: 10px;">
+    <p style="margin: 0;"> Gre Word :</p>
+    <label for="greWordInput">
+        <input type="text" id="greWordInput" placeholder="Gre Word">
+    </label>
+</div>
+<br>
+
+<div style="display: flex; align-items: center; gap: 10px;">
+    <p style="margin: 0;"> Word Definition :</p>
+    <label for="greWordDefinition">
+        <input type="text" id="greWordDefinition" placeholder="Gre Word definition" readonly>
+    </label>
+</div>
+<br>
+
+<div style="display: flex; align-items: center; gap: 10px;">
+    <p style="margin: 0;"> Example :</p>
+    <label for="greWordExample">
+        <input type="text" id="greWordExample" placeholder="Gre Word example" readonly>
+    </label>
+</div>
+<br>
+
+<div style="display: flex; gap: 20px; margin-bottom: 10px;">
+    <button onclick="callGetWordDetailsApi()">Click to retrieve new word</button>
+    <button onclick="callSubmitGREWordDetailsApi()"> Click to submit new word</button>
+</div>
+<div id="allGreWordContainer">
+    <!--    style="margin-top: 20px;-->
+    <button onclick="callGetAllWordRecordsApi()">Click to get all GRE words</button>
+</div>
+
+<script src="javascript/app.js"></script>
+</body>
+</html>
