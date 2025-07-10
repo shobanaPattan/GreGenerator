@@ -202,6 +202,7 @@ public class GREWordTrainerAPI {
                 HTTPHeaderModel httpConfigModel = HTTPConfigUtil.getConfigModelFromHTTP(req);
                 //Set JSON response
                 res.type(httpConfigModel.getResponseType());
+                System.out.println("Checking userNameOrEmail: " + httpConfigModel.getUserNameType());
 
                 boolean exists = checkUserNameOrEmailExists(httpConfigModel.getUserNameType());
                 JsonObject result = new JsonObject();

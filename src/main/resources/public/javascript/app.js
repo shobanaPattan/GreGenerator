@@ -80,10 +80,10 @@ document.getElementById("greWordDefinition").value = "Error";
 });
 }
 
-//Run on Page Load
-document.addEventListener("DOMContentLoaded",() =>{
-loadLeastViewedWord();
-});
+////Run on Page Load
+//document.addEventListener("DOMContentLoaded",() =>{
+//loadLeastViewedWord();
+//});
 
 
 
@@ -222,7 +222,7 @@ headers: {
             'Accept': 'application/json', // Ensure it sets response type
         },
         body: JSON.stringify({
-        value: userName,
+        userName: userName,
         databaseType: "dynamodb"
         })
     })

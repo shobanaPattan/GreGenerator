@@ -317,17 +317,19 @@ public class DynamoDBConnector extends AbstractDataBaseConnector implements Cach
         try {
             Map<String, AttributeValue> key = Map.of("UserName", AttributeValue.fromS(userNameValue));
             GetItemRequest getItemRequest = GetItemRequest.builder()
-                    .tableName("GRE_GENAI_USERS ").key(key).build();
+                    .tableName("GRE_AI_USERS").key(key).build();
 
             Map<String, AttributeValue> item = dynamoDbClient.getItem(getItemRequest).item();
             if (item != null && !item.isEmpty()) {
-                System.out.println(item);
+                System.out.println("Item" + item);
                 return true;
             }
             //Scan for email if not found by username
             ScanRequest scanRequest = ScanRequest.builder()
-                    .tableName("GRE_GENAI_USERS ")
+                    .tableName("GRE_GENAI_USERS")
                     .filterExpression("email = :val").expressionAttributeValues(Map.of(":val", AttributeValue.fromS(userNameValue))).build();
+
+            System.out.println("Scan result for email match: " + dynamoDbClient.scan(scanRequest).items());
 
             return !dynamoDbClient.scan(scanRequest).items().isEmpty();
         } catch (Exception e) {
