@@ -18,10 +18,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.util.stream.Stream;
 
 import java.util.ArrayList;
@@ -510,14 +507,37 @@ public class DynamoDBConnector extends AbstractDataBaseConnector implements Cach
 
 
     // ********* Serializable file objects *********
-    public static void saveGREDetailsToFile() {
-        GREWordDetails greWordDetails = new GREWordDetails("Enervate", "TO weaken/ Drain energy from", "I'm enervated");
+//    public static void saveGREDetailsToFile() {
+//        GREWordDetails greWordDetails = new GREWordDetails("Enervate", "TO weaken/ Drain energy from", "I'm enervated");
+//
+//        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream("C:\\Users\\deepu\\Desktop"))) {
+//            objectOutputStream.writeObject(greWordDetails);
+//            System.out.println("Data Serialized to file.");
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
-        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream("C:\\Users\\deepu\\Desktop"))) {
-            objectOutputStream.writeObject(greWordDetails);
-            System.out.println("Data Serialized to file.");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+
+    public static void saveGreWordDetails(String greWord, String greDefinition, String greExample) {
+        try {
+            Map<String, AttributeValue> item = new HashMap<>();
+            item.put("Training_English_Word", AttributeValue.fromS(greWord));
+            item.put("Explanation", AttributeValue.fromS(greDefinition));
+            item.put("Example", AttributeValue.fromS(greExample));
+
+
+            PutItemRequest request = PutItemRequest.builder().tableName("GRE_GENAI").item(item).build();
+
+            dynamoDbClient.putItem(request);
+
+            System.out.println("Successfully saved GRE details from CSV file.");
+        } catch (DynamoDbException e) {
+            System.err.println("Failed to save GRE details from CSV file : " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Unexpected error: " + e.getMessage());
+            e.printStackTrace();
         }
     }
+
 }

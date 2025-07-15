@@ -286,3 +286,43 @@ console.error("Error saving user details: ", error);
 alert("Something went wrong. Please try again.");
 });
 }
+
+
+
+// ********* Function to Upload GRE word CSV file to database *********
+function callUploadGreWordsFileApi(){
+const fileInput = document.getElementById("file");
+const file = fileInput.files[0];
+
+if(!file){
+alert("Please select a file to upload.");
+return;
+}
+
+const formData = new FormData();
+formData.append("file", file); //Should match backend api, .getPart("file")
+
+fetch('/uploadGREWordsFile',{
+method: 'POST',
+//headers: {
+//            'Content-Type': 'application/json',
+//            'Accept': 'application/json', // Ensure it sets response type
+//        },
+//        body: JSON.stringify({
+//        databaseType: "dynamodb"
+//        })
+body: formData
+})
+.then(response => {
+if(!response.ok){
+throw new Error("Failed to upload GRE words from CSV file.");
+}
+return response.json();
+})
+.then(data =>{
+alert(data);
+})
+.catch(error => {
+console.error("Upload error: ", error);
+});
+}

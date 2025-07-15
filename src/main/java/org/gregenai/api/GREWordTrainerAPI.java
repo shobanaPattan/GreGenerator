@@ -1,12 +1,16 @@
 package org.gregenai.api;
 
 import org.apache.hadoop.shaded.com.google.gson.JsonObject;
+import org.gregenai.Handlers.UploadHandler;
 import org.gregenai.factory.DataBaseConnectorFactory;
 import org.gregenai.model.GreRequest;
 import org.gregenai.model.HTTPHeaderModel;
 import org.gregenai.dependency.db.AbstractDataBaseConnector;
 import org.gregenai.util.HTTPConfigUtil;
 import org.gregenai.util.JSONUtil;
+
+import javax.servlet.MultipartConfigElement;
+import javax.servlet.http.Part;
 
 import static org.gregenai.dependency.db.DynamoDBConnector.checkUserNameOrEmailExists;
 import static org.gregenai.dependency.db.DynamoDBConnector.saveUserDetails;
@@ -220,7 +224,7 @@ public class GREWordTrainerAPI {
             }
         });
 
-        //POST Gre word and definition
+        //POST user details
         post("/postUserDetails", (req, res) -> {
             try {
                 GreRequest greRequest = validateAndReturnRequestBody(req);
@@ -237,6 +241,22 @@ public class GREWordTrainerAPI {
             }
         });
 
+        //POST GRE details from CSV file
+        post("/uploadGREWordsFile", (req, res) -> {
+            try {
+                req.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement("/tmp"));
+                Part filePart = req.raw().getPart("file");
+
+                return UploadHandler.handleCSVFileUpload(filePart.getInputStream());
+            } catch (IllegalArgumentException exception) {
+                return JSONUtil.generateErrorJsonStringFromObject("Input is invalid.");
+            } catch (Exception e) {
+                System.err.println("Failed to upload CSV file.");
+                e.printStackTrace();
+                res.status();
+                return JSONUtil.generateErrorJsonStringFromObject("Failed to insert values to database from CSV file.");
+            }
+        });
 
 
 
