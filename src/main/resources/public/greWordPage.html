@@ -3,44 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <title>GRE Word Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+             margin-bottom: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+<!--            gap: 10px;-->
+        }
+
+        .form-group label {
+            width: 120px;
+<!--             margin-right: 10px;-->
+            font-weight: normal;
+        }
+
+        .form-group input {
+        width: 250px;
+<!--            flex: 1;-->
+            padding: 6px;
+            font-size: 14px;
+        }
+
+        button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 8px 14px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        #allGreWordContainer {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
 <h1>GRE Word Details</h1>
 
-<!-- Search Section -->
-<div style="display: flex; align-items: center; gap: 10px;">
-    <p style="margin: 0;"> Gre Word :</p>
-    <label for="greWordInput">
-        <input type="text" id="greWordInput" placeholder="Gre Word">
-    </label>
+<!-- Gre Word Details -->
+
+<div class="form-group">
+    <!--    <p style="margin: 0;"> Gre Word :</p>-->
+    <label for="greWordInput">Gre Word :</label>
+    <input type="text" id="greWordInput" placeholder="Enter Gre Word">
 </div>
 <br>
 
-<div style="display: flex; align-items: center; gap: 10px;">
-    <p style="margin: 0;"> Word Definition :</p>
-    <label for="greWordDefinition">
-        <input type="text" id="greWordDefinition" placeholder="Gre Word definition" readonly>
-    </label>
+<div class="form-group">
+    <!--    <p style="margin: 0;"> Word Definition :</p>-->
+    <label for="greWordDefinition">Word Definition :</label>
+    <input type="text" id="greWordDefinition" placeholder="Gre Word definition" readonly>
 </div>
 <br>
 
-<div style="display: flex; align-items: center; gap: 10px;">
-    <p style="margin: 0;"> Example :</p>
-    <label for="greWordExample">
+<div class="form-group">
+    <!--    <p style="margin: 0;"> Example :</p>-->
+    <label for="greWordExample">Example :</label>
         <input type="text" id="greWordExample" placeholder="Gre Word example" readonly>
-    </label>
+</div>
+<br>
+<!-- Buttons -->
+<div class="button-group">
+    <button onclick="callGetWordDetailsApi()">Retrieve GRE word Definition</button>
+    <button onclick="callSubmitGREWordDetailsApi()">Submit New Word</button>
+</div>
+
+<div class="button-group" id="allGreWordContainer">
+    <button onclick="callGetAllWordRecordsApi()">Get All GRE Words</button>
 </div>
 <br>
 
-<div style="display: flex; gap: 20px; margin-bottom: 10px;">
-    <button onclick="callGetWordDetailsApi()">Click to retrieve new word</button>
-    <button onclick="callSubmitGREWordDetailsApi()"> Click to submit new word</button>
-</div>
-<div id="allGreWordContainer">
-    <!--    style="margin-top: 20px;-->
-    <button onclick="callGetAllWordRecordsApi()">Click to get all GRE words</button>
+<div class="button-group">
+    <form id="uploadForm" enctype="multipart/form-data">
+        <label for="file">Upload GRE words file (.csv):</label>
+        <input type="file" id="file" name="file" accept=".csv">
+        <button onclick=" " type="submit">Upload</button>
+    </form>
 </div>
 
+
+<!--<div style="display: flex; align-items: center; gap: 10px;">-->
+<!--    <p style="margin: 0;"> Gre Word :</p>-->
+<!--    <label for="greWordInput">-->
+<!--        <input type="text" id="greWordInput" placeholder="Gre Word">-->
+<!--    </label>-->
+<!--</div>-->
+<!--<br>-->
+
+<!--<div style="display: flex; align-items: center; gap: 10px;">-->
+<!--    <p style="margin: 0;"> Word Definition :</p>-->
+<!--    <label for="greWordDefinition">-->
+<!--        <input type="text" id="greWordDefinition" placeholder="Gre Word definition" readonly>-->
+<!--    </label>-->
+<!--</div>-->
+<!--<br>-->
+
+<!--<div style="display: flex; align-items: center; gap: 10px;">-->
+<!--    <p style="margin: 0;"> Example :</p>-->
+<!--    <label for="greWordExample">-->
+<!--        <input type="text" id="greWordExample" placeholder="Gre Word example" readonly>-->
+<!--    </label>-->
+<!--</div>-->
+<!--<br>-->
+
+<!--<div style="display: flex; gap: 20px; margin-bottom: 10px;">-->
+<!--    <button onclick="callGetWordDetailsApi()">Click to retrieve new word</button>-->
+<!--    <button onclick="callSubmitGREWordDetailsApi()"> Click to submit new word</button>-->
+<!--</div>-->
+<!--<div id="allGreWordContainer">-->
+<!--    &lt;!&ndash;    style="margin-top: 20px;&ndash;&gt;-->
+<!--    <button onclick="callGetAllWordRecordsApi()">Click to get all GRE words</button>-->
+<!--</div>-->
+<script>
+    document.addEventListener("DOMContentLoaded",() =>{
+    loadLeastViewedWord();
+    });
+</script>
 <script src="javascript/app.js"></script>
 </body>
 </html>

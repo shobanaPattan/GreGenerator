@@ -1,6 +1,7 @@
 package org.gregenai.validators;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import org.gregenai.model.GreRequest;
 import spark.Request;
@@ -25,4 +26,19 @@ public class InputValidator {
         }
 //        return null;
     }
+
+    private static String getUserName(Request request) {
+        final JsonObject jsonObject = gson.fromJson(request.body(), JsonObject.class);
+        System.out.println("Executing getUserName...");
+        if (jsonObject == null || !jsonObject.has("userName")) {
+            throw new IllegalArgumentException("Missing user name input or email.");
+        }
+        String userName = jsonObject.get("userName").getAsString().trim();
+        if (userName.isEmpty()) {
+            throw new IllegalArgumentException("User Name or Email cannot be empty.");
+        }
+        System.out.println(userName);
+        return userName;
+    }
+
 }

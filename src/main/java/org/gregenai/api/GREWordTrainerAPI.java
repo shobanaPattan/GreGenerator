@@ -9,6 +9,7 @@ import org.gregenai.util.HTTPConfigUtil;
 import org.gregenai.util.JSONUtil;
 
 import static org.gregenai.dependency.db.DynamoDBConnector.checkUserNameOrEmailExists;
+import static org.gregenai.dependency.db.DynamoDBConnector.saveUserDetails;
 import static org.gregenai.htmlload.LoadHTMLFile.loadHtmlFile;
 import static org.gregenai.validators.InputValidator.validateAndReturnRequestBody;
 import static spark.Spark.*;
@@ -199,12 +200,15 @@ public class GREWordTrainerAPI {
 
         post("/checkUserNameOrEmail", (req, res) -> {
             try {
-                HTTPHeaderModel httpConfigModel = HTTPConfigUtil.getConfigModelFromHTTP(req);
-                //Set JSON response
-                res.type(httpConfigModel.getResponseType());
-                System.out.println("Checking userNameOrEmail: " + httpConfigModel.getUserNameType());
+//                HTTPHeaderModel httpConfigModel = HTTPConfigUtil.getConfigModelFromHTTP(req);
+//                //Set JSON response
+//                res.type(httpConfigModel.getResponseType());
 
-                boolean exists = checkUserNameOrEmailExists(httpConfigModel.getUserNameType());
+
+                GreRequest greRequest = validateAndReturnRequestBody(req);
+                System.out.println("Checking userNameOrEmail: " + greRequest.getUserName());
+
+                boolean exists = checkUserNameOrEmailExists(greRequest);
                 JsonObject result = new JsonObject();
                 result.addProperty("exists", exists);
                 return result.toString();
@@ -216,7 +220,22 @@ public class GREWordTrainerAPI {
             }
         });
 
+        //POST Gre word and definition
+        post("/postUserDetails", (req, res) -> {
+            try {
+                GreRequest greRequest = validateAndReturnRequestBody(req);
 
+                return saveUserDetails(greRequest);
+
+            } catch (IllegalArgumentException exception) {
+                return JSONUtil.generateErrorJsonStringFromObject("Input is invalid.");
+            } catch (Exception e) {
+                System.err.println("Failed to add new row to the database");
+                e.printStackTrace();
+                res.status();
+                return JSONUtil.generateErrorJsonStringFromObject("Failed to insert values to database.");
+            }
+        });
 
 
 

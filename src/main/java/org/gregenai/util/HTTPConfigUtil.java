@@ -13,7 +13,7 @@ public class HTTPConfigUtil {
         final HTTPHeaderModel model = HTTPHeaderModel.builder()
                 .dataBaseType(getDataBaseType(request))
                 .responseType(getResponseType(request))
-                .userNameType(getUserName(request))
+//                .userNameType(getUserName(request))
                 .build();
         // TODO: Set more headers
         return model;
@@ -60,19 +60,19 @@ public class HTTPConfigUtil {
         return dataBaseType;
     }
 
-    private static String getUserName(Request request) {
-        final JsonObject jsonObject = gson.fromJson(request.body(), JsonObject.class);
-        System.out.println("Executing getUserName...");
-        if (jsonObject == null || !jsonObject.has("userName")) {
-            throw new IllegalArgumentException("Missing user name input or email.");
-        }
-        String userName = jsonObject.get("userName").getAsString().trim();
-        if (userName.isEmpty()) {
-            throw new IllegalArgumentException("User Name or Email cannot be empty.");
-        }
-        System.out.println(userName);
-        return userName;
-    }
+//    private static String getUserName(Request request) {
+//        final JsonObject jsonObject = gson.fromJson(request.body(), JsonObject.class);
+//        System.out.println("Executing getUserName...");
+//        if (jsonObject == null || !jsonObject.has("userName")) {
+//            throw new IllegalArgumentException("Missing user name input or email.");
+//        }
+//        String userName = jsonObject.get("userName").getAsString().trim();
+//        if (userName.isEmpty()) {
+//            throw new IllegalArgumentException("User Name or Email cannot be empty.");
+//        }
+//        System.out.println(userName);
+//        return userName;
+//    }
 
 
 

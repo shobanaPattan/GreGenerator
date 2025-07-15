@@ -15,6 +15,6 @@ public class HTTPHeaderModel {
     @Getter
     private String dataBaseType;
 
-    private String userNameType;
+//    private String userNameType;
 
 }

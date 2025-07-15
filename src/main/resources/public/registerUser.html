@@ -3,6 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <title>Registration Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+             margin-bottom: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+<!--            gap: 10px;-->
+        }
+
+        .form-group label {
+            width: 120px;
+<!--             margin-right: 10px;-->
+            font-weight: normal;
+        }
+
+        .form-group input {
+        width: 250px;
+<!--            flex: 1;-->
+            padding: 6px;
+            font-size: 14px;
+        }
+
+        button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 8px 14px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        #allGreWordContainer {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
 
@@ -10,46 +57,87 @@
     Welcome : Please register your profile.
 </h1>
 
-<div style="display: flex; align-items: center; gap: 10px;">
-    <p style="margin: 0;"> User Name :</p>
-    <label for="userNameInput">
-        <input type="text" id="userNameInput" placeholder="Enter User name">
-    </label>
+<div class="form-group">
+    <!--<p style="margin: 0;"> User Name :</p>-->
+    <label for="userNameInput">User Name :</label>
+    <input type="text" id="userNameInput" placeholder="Enter User name">
 </div>
 <br>
 
-<div style="display: flex; align-items: center; gap: 10px;">
-    <p style="margin: 0;"> First Name :</p>
-    <label for="firstNameInput">
-        <input type="text" id="firstNameInput" placeholder="Enter First name">
-    </label>
+<div class="form-group">
+    <!--    <p style="margin: 0;"> First Name :</p>-->
+    <label for="firstNameInput">First Name :</label>
+    <input type="text" id="firstNameInput" placeholder="Enter First name">
 </div>
 <br>
 
-<div style="display: flex; align-items: center; gap: 10px;">
-    <p style="margin: 0;"> Last Name :</p>
-    <label for="lastNameInput">
-        <input type="text" id="lastNameInput" placeholder="Enter Last name">
-    </label>
+<div class="form-group">
+    <!--    <p style="margin: 0;"> Last Name :</p>-->
+    <label for="lastNameInput">Last Name :</label>
+    <input type="text" id="lastNameInput" placeholder="Enter Last name">
+
 </div>
 <br>
 
-<div style="display: flex; align-items: center; gap: 10px;">
-    <p style="margin: 0;"> Email :</p>
-    <label for="emailInput">
-        <input type="text" id="emailInput" placeholder="Enter Email ID">
-    </label>
+<div class="form-group">
+    <!--    <p style="margin: 0;"> Email :</p>-->
+    <label for="emailInput">Email :</label>
+    <input type="text" id="emailInput" placeholder="Enter Email ID">
 </div>
 <br>
 
-<div style="display: flex; align-items: center; gap: 10px;">
-    <p style="margin: 0;"> Address :</p>
-    <label for="addressInput">
-        <input type="text" id="addressInput" placeholder="Enter Address">
-    </label>
+<div class="form-group">
+    <!--    <p style="margin: 0;"> Address :</p>-->
+    <label for="addressInput">Address :</label>
+    <input type="text" id="addressInput" placeholder="Enter Address">
 </div>
 <br>
 
+<!-- Button -->
+<div class="button-group">
+    <button onclick="callSaveUserDetailsApi()">Save Details</button>
+    <button onclick="callCancelApi()">Cancel</button>
+</div>
 
+<!--<div style="display: flex; align-items: center; gap: 10px;">-->
+<!--    <p style="margin: 0;"> User Name :</p>-->
+<!--    <label for="userNameInput">-->
+<!--        <input type="text" id="userNameInput" placeholder="Enter User name">-->
+<!--    </label>-->
+<!--</div>-->
+<!--<br>-->
+
+<!--<div style="display: flex; align-items: center; gap: 10px;">-->
+<!--    <p style="margin: 0;"> First Name :</p>-->
+<!--    <label for="firstNameInput">-->
+<!--        <input type="text" id="firstNameInput" placeholder="Enter First name">-->
+<!--    </label>-->
+<!--</div>-->
+<!--<br>-->
+
+<!--<div style="display: flex; align-items: center; gap: 10px;">-->
+<!--    <p style="margin: 0;"> Last Name :</p>-->
+<!--    <label for="lastNameInput">-->
+<!--        <input type="text" id="lastNameInput" placeholder="Enter Last name">-->
+<!--    </label>-->
+<!--</div>-->
+<!--<br>-->
+
+<!--<div style="display: flex; align-items: center; gap: 10px;">-->
+<!--    <p style="margin: 0;"> Email :</p>-->
+<!--    <label for="emailInput">-->
+<!--        <input type="text" id="emailInput" placeholder="Enter Email ID">-->
+<!--    </label>-->
+<!--</div>-->
+<!--<br>-->
+
+<!--<div style="display: flex; align-items: center; gap: 10px;">-->
+<!--    <p style="margin: 0;"> Address :</p>-->
+<!--    <label for="addressInput">-->
+<!--        <input type="text" id="addressInput" placeholder="Enter Address">-->
+<!--    </label>-->
+<!--</div>-->
+<!--<br>-->
+<script src="javascript/app.js"></script>
 </body>
 </html>

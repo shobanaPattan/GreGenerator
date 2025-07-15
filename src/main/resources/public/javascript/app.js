@@ -80,10 +80,6 @@ document.getElementById("greWordDefinition").value = "Error";
 });
 }
 
-////Run on Page Load
-//document.addEventListener("DOMContentLoaded",() =>{
-//loadLeastViewedWord();
-//});
 
 
 
@@ -241,6 +237,52 @@ window.location.href = "registerUser.html";
 })
 .catch(error =>{
 console.error("Error checking user: ", error);
+alert("Something went wrong. Please try again.");
+});
+}
+
+
+
+// ********* Function to Save User details on AWS Dynamo DB *********
+function callSaveUserDetailsApi(){
+const userName = document.getElementById("userNameInput").value.trim();
+const firstName = document.getElementById("firstNameInput").value.trim();
+const lastName = document.getElementById("lastNameInput").value.trim();
+const email = document.getElementById("emailInput").value.trim();
+const address = document.getElementById("addressInput").value.trim();
+
+if(!userName || !firstName || !lastName || !email || !address){
+alert("All fields are required. Please fill in every field.");
+return;
+}
+
+fetch('/postUserDetails',{
+method: 'POST',
+headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json', // Ensure it sets response type
+        },
+        body: JSON.stringify({
+        userName,
+        firstName,
+        lastName,
+        email,
+        address,
+        databaseType: "dynamodb"
+        })
+    })
+.then(response => {
+if(!response.ok){
+throw new Error("Failed to save User details.");
+}
+return response.json();
+})
+.then(data => {
+console.log("Response: ", data);
+alert("User details saved successfully");
+})
+.catch(error =>{
+console.error("Error saving user details: ", error);
 alert("Something went wrong. Please try again.");
 });
 }

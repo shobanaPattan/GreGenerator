@@ -3,6 +3,7 @@ package org.gregenai.dependency.db;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.gregenai.Serialization.GREWordDetails;
 import org.gregenai.interfaces.CacheServices;
 import org.gregenai.model.GreRequest;
 import org.gregenai.util.JSONUtil;
@@ -16,6 +17,12 @@ import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.util.stream.Stream;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -313,9 +320,11 @@ public class DynamoDBConnector extends AbstractDataBaseConnector implements Cach
     }
 
 
-    public static boolean checkUserNameOrEmailExists(String userNameValue) {
+    public static boolean checkUserNameOrEmailExists(GreRequest greRequest) {
         try {
-            Map<String, AttributeValue> key = Map.of("UserName", AttributeValue.fromS(userNameValue));
+            System.out.println("Username scanning");
+            //Checking for username
+            Map<String, AttributeValue> key = Map.of("UserName", AttributeValue.fromS(greRequest.getUserName()));
             GetItemRequest getItemRequest = GetItemRequest.builder()
                     .tableName("GRE_AI_USERS").key(key).build();
 
@@ -324,10 +333,12 @@ public class DynamoDBConnector extends AbstractDataBaseConnector implements Cach
                 System.out.println("Item" + item);
                 return true;
             }
+
+            System.out.println("Scanning items");
             //Scan for email if not found by username
             ScanRequest scanRequest = ScanRequest.builder()
-                    .tableName("GRE_GENAI_USERS")
-                    .filterExpression("email = :val").expressionAttributeValues(Map.of(":val", AttributeValue.fromS(userNameValue))).build();
+                    .tableName("GRE_AI_USERS")
+                    .filterExpression("email = :val").expressionAttributeValues(Map.of(":val", AttributeValue.fromS(greRequest.getEmail()))).build();
 
             System.out.println("Scan result for email match: " + dynamoDbClient.scan(scanRequest).items());
 
@@ -337,6 +348,47 @@ public class DynamoDBConnector extends AbstractDataBaseConnector implements Cach
             return false;
         }
     }
+
+    public static String saveUserDetails(GreRequest greRequest) {
+        try {
+            //Basic validation that no fields are null or empty
+            if (Stream.of(
+                    greRequest.getUserName(),
+                    greRequest.getFirstName(),
+                    greRequest.getLastName(),
+                    greRequest.getEmail(),
+                    greRequest.getAddress()
+            ).anyMatch(val -> val == null || val.trim().isEmpty())) {
+                return JSONUtil.generateErrorJsonStringFromObject("All fields are required and cannot be empty");
+            }
+
+            //Check if the UserName or Email already exists
+            if (checkUserNameOrEmailExists(greRequest)) {
+                return JSONUtil.generateErrorJsonStringFromObject("Username or Email already exists.");
+            }
+
+            Map<String, AttributeValue> resultSet = new HashMap<>();
+            resultSet.put("UserName", AttributeValue.builder().s(greRequest.getUserName()).build());
+            resultSet.put("email", AttributeValue.builder().s(greRequest.getEmail()).build());
+            resultSet.put("First Name", AttributeValue.builder().s(greRequest.getFirstName()).build());
+            resultSet.put("Last Name", AttributeValue.builder().s(greRequest.getLastName()).build());
+            resultSet.put("Address", AttributeValue.builder().s(greRequest.getAddress()).build());
+
+            PutItemRequest putItemRequest = PutItemRequest.builder().tableName("GRE_AI_USERS").item(resultSet).build();
+            dynamoDbClient.putItem(putItemRequest);
+
+            System.out.println("Successfully inserted User details into Dynamo DB table.");
+
+            return JSONUtil.generateJsonStringFromObject(resultSet);
+        } catch (DynamoDbException e) {
+            System.err.println("DynamoDB insertion failed: " + e.getMessage());
+            return JSONUtil.generateErrorJsonStringFromObject("Failed to insert User details");
+        } catch (Exception e) {
+            System.err.println("Unexpected error: " + e.getMessage());
+            return JSONUtil.generateErrorJsonStringFromObject("Failed to save User details");
+        }
+    }
+
 
 
     // Convert AttributeValue map to readable Map<String, Object>
@@ -454,5 +506,18 @@ public class DynamoDBConnector extends AbstractDataBaseConnector implements Cach
             return false;
         }
         return true;
+    }
+
+
+    // ********* Serializable file objects *********
+    public static void saveGREDetailsToFile() {
+        GREWordDetails greWordDetails = new GREWordDetails("Enervate", "TO weaken/ Drain energy from", "I'm enervated");
+
+        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream("C:\\Users\\deepu\\Desktop"))) {
+            objectOutputStream.writeObject(greWordDetails);
+            System.out.println("Data Serialized to file.");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
