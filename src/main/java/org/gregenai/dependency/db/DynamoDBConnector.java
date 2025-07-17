@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DynamoDBConnector extends AbstractDataBaseConnector implements CacheServices {
+public class DynamoDBConnector extends AbstractDataBaseConnector implements CacheServices{
 
     static DynamoDbClient dynamoDbClient;
     private static final long REDIS_CACHE_TTL_SECONDS = 60;
@@ -539,5 +539,19 @@ public class DynamoDBConnector extends AbstractDataBaseConnector implements Cach
             e.printStackTrace();
         }
     }
+
+public static List<Map<String, AttributeValue>>getAllGRERecordsAsList(){
+        try{
+        ScanRequest scanRequest=ScanRequest.builder().tableName("GRE_GENAI").build();
+        ScanResponse scanResponse=dynamoDbClient.scan(scanRequest);
+        return scanResponse.items();
+        }catch(DynamoDbException e){
+        System.err.println("Failed to retrieve values from Dynamo DB: "+e.getMessage());
+        }catch(Exception e){
+        System.err.println("Unexpected error: "+e.getMessage());
+        e.printStackTrace();
+        }
+        return new ArrayList<>();
+        }
 
 }

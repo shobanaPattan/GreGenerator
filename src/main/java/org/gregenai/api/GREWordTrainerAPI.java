@@ -1,16 +1,24 @@
 package org.gregenai.api;
 
+import org.apache.hadoop.hdfs.util.StripedBlockUtil;
 import org.apache.hadoop.shaded.com.google.gson.JsonObject;
+import org.gregenai.Handlers.DownloadHandler;
 import org.gregenai.Handlers.UploadHandler;
+import org.gregenai.dependency.db.DynamoDBConnector;
 import org.gregenai.factory.DataBaseConnectorFactory;
 import org.gregenai.model.GreRequest;
 import org.gregenai.model.HTTPHeaderModel;
 import org.gregenai.dependency.db.AbstractDataBaseConnector;
 import org.gregenai.util.HTTPConfigUtil;
 import org.gregenai.util.JSONUtil;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
+import javax.print.attribute.Attribute;
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.http.Part;
+
+import java.util.List;
+import java.util.Map;
 
 import static org.gregenai.dependency.db.DynamoDBConnector.checkUserNameOrEmailExists;
 import static org.gregenai.dependency.db.DynamoDBConnector.saveUserDetails;
@@ -247,6 +255,11 @@ public class GREWordTrainerAPI {
                 req.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement("/tmp"));
                 Part filePart = req.raw().getPart("file");
 
+                if (filePart == null) {
+                    res.status(400);
+                    return "No file uploaded";
+                }
+
                 return UploadHandler.handleCSVFileUpload(filePart.getInputStream());
             } catch (IllegalArgumentException exception) {
                 return JSONUtil.generateErrorJsonStringFromObject("Input is invalid.");
@@ -258,6 +271,20 @@ public class GREWordTrainerAPI {
             }
         });
 
+        //Download GRE word details from Dynamo db into .csv file
+        get("/downloadGreCsv", (req, res) -> {
+            try {
+                List<Map<String, AttributeValue>> items = DynamoDBConnector.getAllGRERecordsAsList();
+                String csv = DownloadHandler.formatAsCSV(items);
+                res.type("text/csv");
+                res.header("Content-Disposition", "attachment; filename=gre_words.csv");
+
+                return csv;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return JSONUtil.generateErrorJsonStringFromObject("Failed to execute HTML file.");
+            }
+        });
 
 
         awaitInitialization(); // make sure server is ready
