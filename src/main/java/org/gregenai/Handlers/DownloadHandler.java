@@ -26,6 +26,26 @@ public class DownloadHandler {
         return csv.toString();
     }
 
+
+    public static String userDetailsFormatAsCSV(List<Map<String, AttributeValue>> items) {
+        StringBuilder csv = new StringBuilder("UserName,Address,Email,First Name,Last Name\n");
+        for (Map<String, AttributeValue> item : items) {
+            String userName = item.getOrDefault("UserName", AttributeValue.fromS("")).s();
+            String address = item.getOrDefault("Address", AttributeValue.fromS("")).s();
+            String email = item.getOrDefault("email", AttributeValue.fromS("")).s();
+            String firstname = item.getOrDefault("First Name", AttributeValue.fromS("")).s();
+            String lastName = item.getOrDefault("Last Name", AttributeValue.fromS("")).s();
+
+            csv.append(userName).append(",")
+                    .append(address).append(",")
+                    .append(email).append(",")
+                    .append(firstname).append(",")
+                    .append(lastName).append("\n");
+        }
+        return csv.toString();
+    }
+
+
     //JSON download method
     public static String formatAsJson(List<Map<String, AttributeValue>> items) {
         Gson gson = new Gson();

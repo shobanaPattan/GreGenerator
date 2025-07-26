@@ -540,6 +540,7 @@ public class DynamoDBConnector extends AbstractDataBaseConnector implements Cach
         }
     }
 
+    //Download GRE table details into file
 public static List<Map<String, AttributeValue>>getAllGRERecordsAsList(){
         try{
         ScanRequest scanRequest=ScanRequest.builder().tableName("GRE_GENAI").build();
@@ -554,4 +555,18 @@ public static List<Map<String, AttributeValue>>getAllGRERecordsAsList(){
         return new ArrayList<>();
         }
 
+      //Download User table details into file
+      public static List<Map<String, AttributeValue>>getAllUserDetailsAsList(){
+          try{
+              ScanRequest scanRequest=ScanRequest.builder().tableName("GRE_AI_USERS").build();
+              ScanResponse scanResponse=dynamoDbClient.scan(scanRequest);
+              return scanResponse.items();
+          }catch(DynamoDbException e){
+              System.err.println("Failed to retrieve USER details from Dynamo DB: "+e.getMessage());
+          }catch(Exception e){
+              System.err.println("Unexpected error: "+e.getMessage());
+              e.printStackTrace();
+          }
+          return new ArrayList<>();
+      }
 }

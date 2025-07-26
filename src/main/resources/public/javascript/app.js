@@ -326,3 +326,59 @@ alert(data);
 console.error("Upload error: ", error);
 });
 }
+
+
+// ********* Function to download GRE word from dynamo db into csv file *********
+function callDownloadGreWordsApi(){
+
+fetch('/downloadGREWordsToCSVFile',{
+method: 'GET'
+})
+.then(response => {
+if(!response.ok){
+throw new Error("Failed to download CSV file.");
+}
+return response.blob();
+})
+.then(blob =>{
+const url = window.URL.createObjectURL(blob);
+const a = document.createElement('a');
+a.href = url;
+a.download = 'gre_words.csv';
+document.body.appendChild(a);
+a.click();
+a.remove();
+window.URL.revokeObjectURL(url);
+})
+.catch(error => {
+console.error("Error downloading CSV: ", error);
+});
+}
+
+
+// ********* Function to download User Details from dynamo db into csv file *********
+function callDownloadUserDetailsApi(){
+
+fetch('/downloadUserDetailsToCSVFile',{
+method: 'GET'
+})
+.then(response => {
+if(!response.ok){
+throw new Error("Failed to download CSV file.");
+}
+return response.blob();
+})
+.then(blob =>{
+const url = window.URL.createObjectURL(blob);
+const a = document.createElement('a');
+a.href = url;
+a.download = 'user_details.csv';
+document.body.appendChild(a);
+a.click();
+a.remove();
+window.URL.revokeObjectURL(url);
+})
+.catch(error => {
+console.error("Error downloading CSV: ", error);
+});
+}

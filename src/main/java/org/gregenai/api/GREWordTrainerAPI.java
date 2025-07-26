@@ -272,10 +272,11 @@ public class GREWordTrainerAPI {
         });
 
         //Download GRE word details from Dynamo db into .csv file
-        get("/downloadGreCsv", (req, res) -> {
+        get("/downloadGREWordsToCSVFile", (req, res) -> {
             try {
                 List<Map<String, AttributeValue>> items = DynamoDBConnector.getAllGRERecordsAsList();
                 String csv = DownloadHandler.formatAsCSV(items);
+
                 res.type("text/csv");
                 res.header("Content-Disposition", "attachment; filename=gre_words.csv");
 
@@ -286,6 +287,21 @@ public class GREWordTrainerAPI {
             }
         });
 
+        //Download GRE word details from Dynamo db into .csv file
+        get("/downloadUserDetailsToCSVFile", (req, res) -> {
+            try {
+                List<Map<String, AttributeValue>> items = DynamoDBConnector.getAllUserDetailsAsList();
+                String csv = DownloadHandler.userDetailsFormatAsCSV(items);
+
+                res.type("text/csv");
+                res.header("Content-Disposition", "attachment; filename=user_details.csv");
+
+                return csv;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return JSONUtil.generateErrorJsonStringFromObject("Failed to execute HTML file.");
+            }
+        });
 
         awaitInitialization(); // make sure server is ready
 
