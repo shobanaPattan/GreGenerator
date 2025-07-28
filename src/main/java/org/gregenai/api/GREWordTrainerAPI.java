@@ -291,7 +291,7 @@ public class GREWordTrainerAPI {
         get("/downloadUserDetailsToCSVFile", (req, res) -> {
             try {
                 List<Map<String, AttributeValue>> items = DynamoDBConnector.getAllUserDetailsAsList();
-                String csv = DownloadHandler.userDetailsFormatAsCSV(items);
+                Map<String, String> csv = DownloadHandler.userDetailsFormatAsCSV(items);
 
                 res.type("text/csv");
                 res.header("Content-Disposition", "attachment; filename=user_details.csv");

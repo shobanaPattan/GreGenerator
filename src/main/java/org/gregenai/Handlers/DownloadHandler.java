@@ -1,13 +1,11 @@
 package org.gregenai.Handlers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import javax.print.attribute.Attribute;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DownloadHandler {
 
@@ -27,22 +25,44 @@ public class DownloadHandler {
     }
 
 
-    public static String userDetailsFormatAsCSV(List<Map<String, AttributeValue>> items) {
-        StringBuilder csv = new StringBuilder("UserName,Address,Email,First Name,Last Name\n");
+    public static Map<String, String> userDetailsFormatAsCSV(List<Map<String, AttributeValue>> items) {
+        Map<String, String> userMap = new HashMap<>();
+        ObjectMapper objectMapper = new ObjectMapper(); //For JSON Serialization
+
         for (Map<String, AttributeValue> item : items) {
             String userName = item.getOrDefault("UserName", AttributeValue.fromS("")).s();
-            String address = item.getOrDefault("Address", AttributeValue.fromS("")).s();
-            String email = item.getOrDefault("email", AttributeValue.fromS("")).s();
-            String firstname = item.getOrDefault("First Name", AttributeValue.fromS("")).s();
-            String lastName = item.getOrDefault("Last Name", AttributeValue.fromS("")).s();
+            Map<String, String> userDetails = new LinkedHashMap<>();
 
-            csv.append(userName).append(",")
-                    .append(address).append(",")
-                    .append(email).append(",")
-                    .append(firstname).append(",")
-                    .append(lastName).append("\n");
+            for (Map.Entry<String, AttributeValue> entry : item.entrySet()) {
+                String key = entry.getKey();
+                if (!key.equals("UserName")) {
+                    userDetails.put(key, entry.getValue().s());
+                }
+            }
+            try {
+                String jsonDetails = objectMapper.writeValueAsString(userDetails);
+                userMap.put(userName, jsonDetails);
+            } catch (Exception e) {
+                System.err.println("Error converting user details to JSON: " + e.getMessage());
+            }
         }
-        return csv.toString();
+        return userMap;
+
+//        StringBuilder csv = new StringBuilder("UserName,Address,Email,First Name,Last Name\n");
+//        for (Map<String, AttributeValue> item : items) {
+//            String userName = item.getOrDefault("UserName", AttributeValue.fromS("")).s();
+//            String address = item.getOrDefault("Address", AttributeValue.fromS("")).s();
+//            String email = item.getOrDefault("email", AttributeValue.fromS("")).s();
+//            String firstname = item.getOrDefault("First Name", AttributeValue.fromS("")).s();
+//            String lastName = item.getOrDefault("Last Name", AttributeValue.fromS("")).s();
+//
+//            csv.append(userName).append(",")
+//                    .append(address).append(",")
+//                    .append(email).append(",")
+//                    .append(firstname).append(",")
+//                    .append(lastName).append("\n");
+//        }
+//        return csv.toString();
     }
 
 
